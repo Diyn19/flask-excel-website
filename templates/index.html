@@ -30,7 +30,6 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            margin: 5px;
         }
         table {
             width: 100%;
@@ -54,32 +53,33 @@
 </head>
 <body>
     <h1>門市資料查詢</h1>
-
     <form method="get">
         <input type="text" name="keyword" placeholder="請輸入關鍵字查詢" value="{{ keyword }}">
         <button type="submit">搜尋</button>
     </form>
 
-    <div style="text-align: center; margin-bottom: 30px;">
-        <a href="/吳宗鴻"><button type="button">吳宗鴻</button></a>
-        <a href="/湯家瑋"><button type="button">湯家瑋</button></a>
-        <a href="/狄澤洋"><button type="button">狄澤洋</button></a>
-    </div>
-
     <table>
         <thead>
             <tr>
-                {% for col in tables[0].keys() %}
-                <th>{{ col }}</th>
-                {% endfor %}
+                <th>門市編號</th>
+                <th>門市名稱</th>
+                <th>鄉鎮市區</th>
+                <th>PMQ2檢核</th>
+                <th>EDC檢核</th>
+                <th>發票機檢核</th>
+                <th>數量</th>
             </tr>
         </thead>
         <tbody>
             {% for row in tables %}
             <tr>
-                {% for value in row.values() %}
-                <td>{{ value }}</td>
-                {% endfor %}
+                <td>{{ row['門市編號'] }}</td>
+                <td>{{ row['門市名稱'] }}</td>
+                <td>{{ row['鄉鎮市區'] }}</td>
+                <td>{{ row['PMQ2檢核'] }}</td>
+                <td>{{ row['EDC檢核'] }}</td>
+                <td>{{ row['發票機檢核'] }}</td>
+                <td>{{ row['數量'] }}</td>
             </tr>
             {% endfor %}
         </tbody>
