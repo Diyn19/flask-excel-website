@@ -1,29 +1,90 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <title>Excel 數據展示</title>
+    <title>門市資料查詢</title>
     <style>
-        table { width: 80%; margin: auto; border-collapse: collapse; }
-        th, td { border: 1px solid black; padding: 10px; text-align: center; }
-        th { background-color: #f2f2f2; }
+        body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            background-color: #f7f7f7;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            padding: 10px;
+            width: 300px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
     </style>
 </head>
 <body>
-    <h2 style="text-align: center;">Excel 數據展示</h2>
+    <h1>門市資料查詢</h1>
+    <form method="get">
+        <input type="text" name="keyword" placeholder="請輸入關鍵字查詢" value="{{ keyword }}">
+        <button type="submit">搜尋</button>
+    </form>
+
     <table>
-        <tr>
-            {% for key in data[0].keys() %}
-                <th>{{ key }}</th>
+        <thead>
+            <tr>
+                <th>門市編號</th>
+                <th>門市名稱</th>
+                <th>鄉鎮市區</th>
+                <th>PMQ2檢核</th>
+                <th>EDC檢核</th>
+                <th>發票機檢核</th>
+                <th>數量</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in tables %}
+            <tr>
+                <td>{{ row['門市編號'] }}</td>
+                <td>{{ row['門市名稱'] }}</td>
+                <td>{{ row['鄉鎮市區'] }}</td>
+                <td>{{ row['PMQ2檢核'] }}</td>
+                <td>{{ row['EDC檢核'] }}</td>
+                <td>{{ row['發票機檢核'] }}</td>
+                <td>{{ row['數量'] }}</td>
+            </tr>
             {% endfor %}
-        </tr>
-        {% for row in data %}
-        <tr>
-            {% for value in row.values() %}
-                <td>{{ value }}</td>
-            {% endfor %}
-        </tr>
-        {% endfor %}
+        </tbody>
     </table>
 </body>
 </html>
+
+
