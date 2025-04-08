@@ -6,7 +6,7 @@ app = Flask(__name__)
 @app.route('/')
 def index():
     # 讀取 Excel 檔案
-    df = pd.read_excel('DATA.xlsx', header=13, nrows=212)
+    df = pd.read_excel('data.xlsx', header=13, nrows=212)
 
     # 清除欄位名稱中的換行符號
     df.columns = df.columns.str.replace('\n', '', regex=False)
