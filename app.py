@@ -1,17 +1,25 @@
-from flask import Flask, render_template
 import pandas as pd
+from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
-# 讀取 Excel 檔案
-def read_excel():
-    df = pd.read_excel("data.xlsx")  # 確保 data.xlsx 在同個資料夾
-    return df.to_dict(orient="records")  # 轉成字典格式，方便在 HTML 顯示
+@app.route('/')
+def index():
+    # 讀取 Excel 檔案
+    df = pd.read_excel('DATA.xlsx', header=13, nrows=212)
 
-@app.route("/")
-def home():
-    data = read_excel()  # 讀取 Excel 數據
-    return render_template("index.html", data=data)
+    # 清除欄位名稱中的換行符號
+    df.columns = df.columns.str.replace('\n', '', regex=False)
 
-if __name__ == "__main__":
+    # 篩選所需欄位
+    df = df[['門市編號', '門市名稱', '鄉鎮市區', 'PMQ2檢核', 'EDC檢核', '發票機檢核', '數量']]
+
+    # 處理關鍵字搜尋
+    keyword = request.args.get('keyword', '')
+    if keyword:
+        df = df[df.apply(lambda row: row.astype(str).str.contains(keyword, case=False).any(), axis=1)]
+
+    return render_template('index.html', tables=df.to_dict(orient='records'), keyword=keyword)
+
+if __name__ == '__main__':
     app.run(debug=True)
