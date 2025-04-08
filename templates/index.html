@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <title>{{ person_name }} 的頁面</title>
+    <title>門市資料查詢</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -13,28 +13,39 @@
             text-align: center;
             color: #333;
         }
-        a {
-            margin: 10px;
-            text-decoration: none;
-            color: white;
-            background-color: #007BFF;
-            padding: 10px 15px;
+        form {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            padding: 10px;
+            width: 300px;
             border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
         }
         table {
-            margin-top: 20px;
             width: 100%;
             border-collapse: collapse;
             background-color: white;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        col {
-            width: 10%;
-        }
         th, td {
-            border: 1px solid #ccc;
-            padding: 8px;
+            border: 1px solid #ddd;
+            padding: 12px;
             text-align: center;
+        }
+        th {
+            background-color: #007BFF;
+            color: white;
         }
         tr:hover {
             background-color: #f1f1f1;
@@ -42,23 +53,34 @@
     </style>
 </head>
 <body>
-    <h1>{{ person_name }} 的資料</h1>
-    <div style="text-align: center;">
-        <a href="/">回首頁</a>
+    <h1>門市資料查詢</h1>
+
+    <form method="get">
+        <input type="text" name="keyword" placeholder="請輸入關鍵字查詢" value="{{ keyword }}">
+        <button type="submit">搜尋</button>
+    </form>
+
+    <div style="text-align: center; margin-bottom: 30px;">
+        <a href="/吳宗鴻"><button type="button">吳宗鴻</button></a>
+        <a href="/湯家瑋"><button type="button">湯家瑋</button></a>
+        <a href="/狄澤洋"><button type="button">狄澤洋</button></a>
     </div>
+
     <table>
-        <colgroup>
-            {% for i in range(10) %}
-                <col style="width: 10%;">
-            {% endfor %}
-        </colgroup>
+        <thead>
+            <tr>
+                {% for col in tables[0].keys() %}
+                <th>{{ col }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
         <tbody>
-            {% for row in table_data %}
-                <tr>
-                    {% for cell in row %}
-                        <td>{{ cell }}</td>
-                    {% endfor %}
-                </tr>
+            {% for row in tables %}
+            <tr>
+                {% for value in row.values() %}
+                <td>{{ value }}</td>
+                {% endfor %}
+            </tr>
             {% endfor %}
         </tbody>
     </table>
