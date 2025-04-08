@@ -1,12 +1,15 @@
-from flask import Flask, render_template, request
 import pandas as pd
+from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
 @app.route('/')
 def index():
     # 讀取 Excel 檔案
-    df = pd.read_excel('DATA.xlsx', header=13, nrows=212)  # 從第14列起 (index=13)，共212列 (225-13)
+    df = pd.read_excel('DATA.xlsx', header=13, nrows=212)
+
+    # 清除欄位名稱中的換行符號
+    df.columns = df.columns.str.replace('\n', '', regex=False)
 
     # 篩選所需欄位
     df = df[['門市編號', '門市名稱', '鄉鎮市區', 'PMQ2檢核', 'EDC檢核', '發票機檢核', '數量']]
