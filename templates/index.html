@@ -1,95 +1,75 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html>
 <head>
     <meta charset="UTF-8">
-    <title>門市資料查詢</title>
+    <title>Excel 資料展示</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 40px;
-            background-color: #f7f7f7;
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-        form, .buttons {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        input[type="text"] {
-            padding: 10px;
-            width: 300px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-        button {
-            padding: 10px 15px;
-            margin: 5px;
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
         table {
-            width: 100%;
             border-collapse: collapse;
-            background-color: white;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            table-layout: fixed;
+            width: 100%;
         }
         th, td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: center;
-            word-wrap: break-word;
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+            white-space: nowrap;
         }
         th {
-            background-color: #007BFF;
-            color: white;
+            background-color: #f2f2f2;
         }
-        tr:hover {
-            background-color: #f1f1f1;
+        .search {
+            margin-bottom: 20px;
+        }
+        .nav {
+            margin-bottom: 20px;
+        }
+        .nav a {
+            margin-right: 10px;
+            text-decoration: none;
+            color: blue;
         }
     </style>
 </head>
 <body>
-    <h1>門市資料查詢</h1>
-
-    {% if not personal_page %}
-    <form method="get">
-        <input type="text" name="keyword" placeholder="請輸入關鍵字查詢" value="{{ keyword }}">
-        <button type="submit">搜尋</button>
-    </form>
-    {% endif %}
-
-    <div class="buttons">
-        <a href="/吳宗鴻"><button>吳宗鴻</button></a>
-        <a href="/湯家瑋"><button>湯家瑋</button></a>
-        <a href="/狄澤洋"><button>狄澤洋</button></a>
-        {% if personal_page %}
-            <a href="/"><button style="background-color: #6c757d;">回首頁</button></a>
-        {% endif %}
+    <div class="nav">
+        <a href="/">首頁</a>
+        <a href="/吳宗鴻">吳宗鴻</a>
+        <a href="/湯家瑋">湯家瑋</a>
+        <a href="/狄澤洋">狄澤洋</a>
     </div>
 
+    {% if not personal %}
+    <div class="search">
+        <form method="get">
+            <input type="text" name="keyword" placeholder="搜尋關鍵字" value="{{ keyword }}">
+            <button type="submit">搜尋</button>
+        </form>
+    </div>
+    {% endif %}
+
     <table>
-        <thead>
-            <tr>
-                {% for key in tables[0].keys() %}
-                    <th>{{ key }}</th>
-                {% endfor %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for row in tables %}
-            <tr>
-                {% for value in row.values() %}
-                    <td>{{ value }}</td>
-                {% endfor %}
-            </tr>
+        {% if tables and tables[0] is mapping %}
+        <tr>
+            {% for key in tables[0].keys() %}
+                <th>{{ key }}</th>
             {% endfor %}
-        </tbody>
+        </tr>
+        {% for row in tables %}
+        <tr>
+            {% for cell in row.values() %}
+                <td>{{ cell }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        {% else %} {# 個人頁面: 顯示純二維資料 #}
+        {% for row in tables %}
+        <tr>
+            {% for cell in row %}
+                <td>{{ cell }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        {% endif %}
     </table>
 </body>
 </html>
