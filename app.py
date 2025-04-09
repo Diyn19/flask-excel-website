@@ -3,20 +3,15 @@ from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
-# 處理資料並清除 NaT/nan，並進行數值四捨五入
+# 處理資料並清除 NaT/nan
 def clean_df(df):
     df.columns = df.columns.str.replace('\n', '', regex=False)
     df = df.fillna('')
-
-    # 進行小數點兩位的四捨五入
-    for col in df.select_dtypes(include=['float64']):
-        df[col] = df[col].round(2)
-        
     return df
 
 @app.route('/')
 def index():
-    df = pd.read_excel('data.xlsx', sheet_name=0, header=13, nrows=212, usecols="A:J")
+    df = pd.read_excel('data.xlsx', sheet_name=0, header=13, nrows=212, usecols="A:Z")
     df = clean_df(df)
 
     # 篩選顯示欄位
@@ -33,7 +28,7 @@ def index():
 def personal(name):
     sheet_map = {
         '吳宗鴻': '吳宗鴻',
-        '湯家瑋': '湯家瑋',
+        '湯家瑴': '湯家瑴',
         '狄澤洋': '狄澤洋'
     }
 
@@ -41,15 +36,21 @@ def personal(name):
     if not sheet_name:
         return f"找不到{name}的分頁", 404
 
-    # 讀取個人分頁資料
-    df = pd.read_excel('data.xlsx', sheet_name=sheet_name, usecols="A:J", header=0)
-    df = clean_df(df)
+    # 顯示 A1:J5 作為計算區域
+    df_top = pd.read_excel('data.xlsx', sheet_name=sheet_name, usecols="A:J", nrows=5)  # 修改為 5 行
+    df_top = clean_df(df_top)
 
-    # 判斷資料的行數
-    row_count = len(df)
+    # 顯示從第6列開始的資料，作為表格
+    df_bottom = pd.read_excel('data.xlsx', sheet_name=sheet_name, usecols="A:J", skiprows=5)
+    df_bottom = clean_df(df_bottom)
 
-    # 若行數大於 6 列，則加入其他資料
-    return render_template('index.html', tables=df.to_dict(orient='records'), keyword=name, personal_page=True, row_count=row_count)
+    return render_template(
+        'index.html', 
+        tables_bottom=df_bottom.to_dict(orient='records'), 
+        tables_top=df_top.to_dict(orient='records'), 
+        keyword=name, 
+        personal_page=True
+    )
 
 if __name__ == '__main__':
     app.run(debug=True)

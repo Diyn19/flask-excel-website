@@ -64,15 +64,58 @@
     </form>
     {% endif %}
 
+    <!-- 調整分頁按鈕位置到搜尋框下方 -->
     <div class="buttons">
         <a href="/吳宗鴻"><button>吳宗鴻</button></a>
-        <a href="/湯家瑋"><button>湯家瑋</button></a>
+        <a href="/湯家瑴"><button>湯家瑴</button></a>
         <a href="/狄澤洋"><button>狄澤洋</button></a>
         {% if personal_page %}
             <a href="/"><button style="background-color: #6c757d;">回首頁</button></a>
         {% endif %}
     </div>
 
+    {% if personal_page %}
+   <!-- 計算資料區域 (A1:J5) -->
+<h2>工作統計</h2>
+<table>
+    <thead>
+        <tr>
+            {% for key in tables_top[0].keys() %}
+                <th>{{ key }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in tables_top[:4] %}  <!-- 減少1列，只顯示前4列 -->
+        <tr>
+            {% for value in row.values() %}
+                <td>{{ value }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+    <!-- 資料表格 -->
+    <h2>門市紀錄表</h2>
+    <table>
+        <thead>
+            <tr>
+                {% for key in tables_bottom[0].keys() %}
+                    <th>{{ key }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in tables_bottom %}
+            <tr>
+                {% for value in row.values() %}
+                    <td>{{ value }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
     <table>
         <thead>
             <tr>
@@ -91,5 +134,6 @@
             {% endfor %}
         </tbody>
     </table>
+    {% endif %}
 </body>
 </html>
