@@ -13,7 +13,7 @@
             text-align: center;
             color: #333;
         }
-        form {
+        form, .buttons {
             text-align: center;
             margin-bottom: 20px;
         }
@@ -25,6 +25,7 @@
         }
         button {
             padding: 10px 15px;
+            margin: 5px;
             background-color: #007BFF;
             color: white;
             border: none;
@@ -36,11 +37,13 @@
             border-collapse: collapse;
             background-color: white;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            table-layout: fixed;
         }
         th, td {
             border: 1px solid #ddd;
             padding: 12px;
             text-align: center;
+            word-wrap: break-word;
         }
         th {
             background-color: #007BFF;
@@ -53,33 +56,37 @@
 </head>
 <body>
     <h1>門市資料查詢</h1>
+
+    {% if not personal_page %}
     <form method="get">
         <input type="text" name="keyword" placeholder="請輸入關鍵字查詢" value="{{ keyword }}">
         <button type="submit">搜尋</button>
     </form>
+    {% endif %}
+
+    <div class="buttons">
+        <a href="/吳宗鴻"><button>吳宗鴻</button></a>
+        <a href="/湯家瑋"><button>湯家瑋</button></a>
+        <a href="/狄澤洋"><button>狄澤洋</button></a>
+        {% if personal_page %}
+            <a href="/"><button style="background-color: #6c757d;">回首頁</button></a>
+        {% endif %}
+    </div>
 
     <table>
         <thead>
             <tr>
-                <th>門市編號</th>
-                <th>門市名稱</th>
-                <th>鄉鎮市區</th>
-                <th>PMQ2檢核</th>
-                <th>EDC檢核</th>
-                <th>發票機檢核</th>
-                <th>數量</th>
+                {% for key in tables[0].keys() %}
+                    <th>{{ key }}</th>
+                {% endfor %}
             </tr>
         </thead>
         <tbody>
             {% for row in tables %}
             <tr>
-                <td>{{ row['門市編號'] }}</td>
-                <td>{{ row['門市名稱'] }}</td>
-                <td>{{ row['鄉鎮市區'] }}</td>
-                <td>{{ row['PMQ2檢核'] }}</td>
-                <td>{{ row['EDC檢核'] }}</td>
-                <td>{{ row['發票機檢核'] }}</td>
-                <td>{{ row['數量'] }}</td>
+                {% for value in row.values() %}
+                    <td>{{ value }}</td>
+                {% endfor %}
             </tr>
             {% endfor %}
         </tbody>
