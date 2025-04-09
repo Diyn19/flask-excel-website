@@ -1,48 +1,95 @@
-import pandas as pd
-from flask import Flask, render_template, request
-import math
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>門市資料查詢</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            background-color: #f7f7f7;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        form, .buttons {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            padding: 10px;
+            width: 300px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            table-layout: fixed;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+            word-wrap: break-word;
+        }
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+    <h1>門市資料查詢</h1>
 
-app = Flask(__name__)
+    {% if not personal_page %}
+    <form method="get">
+        <input type="text" name="keyword" placeholder="請輸入關鍵字查詢" value="{{ keyword }}">
+        <button type="submit">搜尋</button>
+    </form>
+    {% endif %}
 
-# 載入 Excel 並清理欄位名稱
-def load_full_data():
-    df = pd.read_excel('data.xlsx', header=13)
-    df.columns = df.columns.str.replace('\n', '', regex=False)  # 移除欄位中的換行符號
-    df = df.fillna('')  # 將 NaN 或 NaT 填成空白
-    return df
+    <div class="buttons">
+        <a href="/吳宗鴻"><button>吳宗鴻</button></a>
+        <a href="/湯家瑋"><button>湯家瑋</button></a>
+        <a href="/狄澤洋"><button>狄澤洋</button></a>
+        {% if personal_page %}
+            <a href="/"><button style="background-color: #6c757d;">回首頁</button></a>
+        {% endif %}
+    </div>
 
-@app.route('/')
-def index():
-    df = load_full_data()
-
-    # 僅保留首頁顯示欄位
-    display_columns = ['門市編號', '門市名稱', '鄉鎮市區', 'PMQ2檢核', 'EDC檢核', '發票機檢核', '數量']
-    df = df[[col for col in display_columns if col in df.columns]]
-
-    # 關鍵字搜尋
-    keyword = request.args.get('keyword', '')
-    if keyword:
-        df = df[df.apply(lambda row: row.astype(str).str.contains(keyword, case=False).any(), axis=1)]
-
-    return render_template('index.html', tables=df.to_dict(orient='records'), keyword=keyword)
-
-@app.route('/<name>')
-def person_page(name):
-    try:
-        # 讀取 A1:J6 (不含標題)、J7 為標題列、J8 開始為資料列
-        df_top = pd.read_excel('data.xlsx', sheet_name=name, usecols="A:J", nrows=6, header=None)
-        df_top = df_top.fillna('').applymap(lambda x: round(x, 2) if isinstance(x, (float, int)) else x)
-
-        # 從第7列開始重新讀取資料（標題+資料）
-        df_rest = pd.read_excel('data.xlsx', sheet_name=name, usecols="A:J", skiprows=6)
-        df_rest.columns = df_rest.columns.str.replace('\n', '', regex=False)
-        df_rest = df_rest.fillna('').applymap(lambda x: round(x, 2) if isinstance(x, (float, int)) else x)
-
-        # 將上段與下段資料分別傳給模板
-        tables = df_top.values.tolist() + df_rest.values.tolist()
-        return render_template('index.html', tables=tables, keyword=name, personal=True)
-    except Exception as e:
-        return f"找不到 {name} 的工作表 或發生錯誤: {e}", 404
-
-if __name__ == '__main__':
-    app.run(debug=True)
+    <table>
+        <thead>
+            <tr>
+                {% for key in tables[0].keys() %}
+                    <th>{{ key }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in tables %}
+            <tr>
+                {% for value in row.values() %}
+                    <td>{{ value }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
