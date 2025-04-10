@@ -11,7 +11,7 @@ def clean_df(df):
 
 @app.route('/')
 def index():
-    df = pd.read_excel('data.xlsx', sheet_name=0, header=13, nrows=212, usecols="A:Z")
+    df = pd.read_excel('data.xlsx', sheet_name=0, header=13, nrows=250, usecols="A:Z")
     df = clean_df(df)
 
     # 篩選顯示欄位
@@ -36,19 +36,24 @@ def personal(name):
     if not sheet_name:
         return f"找不到{name}的分頁", 404
 
-    # 顯示 A1:J5 作為計算區域
-    df_top = pd.read_excel('data.xlsx', sheet_name=sheet_name, usecols="A:J", nrows=5)  # 修改為 5 行
+    # 顯示 A1:J5 作為統計區域
+    df_top = pd.read_excel('data.xlsx', sheet_name=sheet_name, usecols="A:J", nrows=5)
     df_top = clean_df(df_top)
 
-    # 顯示從第6列開始的資料，作為表格
+    # 顯示第6列後的資料
     df_bottom = pd.read_excel('data.xlsx', sheet_name=sheet_name, usecols="A:J", skiprows=5)
     df_bottom = clean_df(df_bottom)
+
+    # 搜尋（針對門市紀錄表）
+    keyword = request.args.get('keyword', '')
+    if keyword:
+        df_bottom = df_bottom[df_bottom.apply(lambda row: row.astype(str).str.contains(keyword, case=False).any(), axis=1)]
 
     return render_template(
         'index.html', 
         tables_bottom=df_bottom.to_dict(orient='records'), 
         tables_top=df_top.to_dict(orient='records'), 
-        keyword=name, 
+        keyword=keyword, 
         personal_page=True
     )
 
