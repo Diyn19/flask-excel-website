@@ -60,7 +60,13 @@
     </style>
 </head>
 <body>
-    <h1>門市資料查詢</h1>
+    <h1>
+    {% if personal_page %}
+        個人查詢
+    {% else %}
+        門市資料查詢
+    {% endif %}
+    </h1>
 
     <form method="get">
         <input type="text" name="keyword" placeholder="請輸入關鍵字查詢" value="{{ keyword }}">
