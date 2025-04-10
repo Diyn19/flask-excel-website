@@ -15,7 +15,7 @@ def index():
     df = clean_df(df)
 
     # 篩選顯示欄位
-    df = df[['門市編號', '門市名稱', '鄉鎮市區', 'PMQ2檢核', 'EDC檢核', '發票機檢核', '數量']]
+    df = df[['門市編號', '門市名稱', '鄉鎮市區', 'PMQ2檢核', 'EDC檢核', '發票機檢核', '數量', '完工檢核']]
 
     # 搜尋
     keyword = request.args.get('keyword', '')
