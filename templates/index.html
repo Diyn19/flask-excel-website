@@ -62,9 +62,9 @@
 <body>
     <h1>
     {% if personal_page %}
-        個人查詢
+        PMQ2 個人查詢
     {% else %}
-        門市資料查詢
+        PMQ2 門市資料查詢
     {% endif %}
     </h1>
 
@@ -72,6 +72,10 @@
         <input type="text" name="keyword" placeholder="請輸入關鍵字查詢" value="{{ keyword }}">
         <button type="submit">搜尋</button>
     </form>
+
+    {% if no_data_found %}
+        <p style="color: red; text-align: center;">無此資料</p>
+    {% endif %}
 
     <!-- 分頁按鈕 -->
     <div class="buttons">
@@ -83,68 +87,115 @@
         {% endif %}
     </div>
 
-    {% if personal_page %}
-    <!-- 計算資料區域 (A1:J5) -->
-    <h2>工作統計</h2>
-    <table>
-        <thead>
-            <tr>
-                {% for key in tables_top[0].keys() %}
-                    <th>{{ key }}</th>
+    {% if not personal_page %}
+        <!-- 部門數量區域 -->
+        <h2>部門數量</h2>
+        <table>
+            <thead>
+                <tr>
+                    {% for key in department_table[0].keys() %}
+                        <th>{{ key }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in department_table %}
+                <tr>
+                    {% for value in row.values() %}
+                        <td>{{ value }}</td>
+                    {% endfor %}
+                </tr>
                 {% endfor %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for row in tables_top[:4] %}
-            <tr class="{% if loop.index == 4 %}highlight-row{% endif %}">
-                {% for value in row.values() %}
-                    <td>{{ value }}</td>
-                {% endfor %}
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </tbody>
+        </table>
 
-    <!-- 資料表格 -->
-    <h2>門市紀錄表</h2>
-    <table>
-        <thead>
-            <tr>
-                {% for key in tables_bottom[0].keys() %}
-                    <th>{{ key }}</th>
+        <!-- 工作統計區域 -->
+        <h2>工作統計</h2>
+        <table>
+            <thead>
+                <tr>
+                    {% for key in workstats_table[0].keys() %}
+                        <th>{{ key }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in workstats_table %}
+                <tr>
+                    {% for value in row.values() %}
+                        <td>{{ value }}</td>
+                    {% endfor %}
+                </tr>
                 {% endfor %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for row in tables_bottom %}
-            <tr>
-                {% for value in row.values() %}
-                    <td>{{ value }}</td>
-                {% endfor %}
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+
+        <!-- 門市資料表格 -->
+        {% if tables|length > 0 %}
+            <h2>門市資料</h2>
+            <table>
+                <thead>
+                    <tr>
+                        {% for key in tables[0].keys() %}
+                            <th>{{ key }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in tables %}
+                    <tr>
+                        {% for value in row.values() %}
+                            <td>{{ value }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
     {% else %}
-    <!-- 首頁資料表格 -->
-    <table>
-        <thead>
-            <tr>
-                {% for key in tables[0].keys() %}
-                    <th>{{ key }}</th>
+        <!-- 個人工作統計 -->
+        <h2>個人工作統計</h2>
+        <table>
+            <thead>
+                <tr>
+                    {% for key in tables_top[0].keys() %}
+                        <th>{{ key }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in tables_top %}
+                <tr {% if loop.index == 4 %}class="highlight-row"{% endif %}>
+                    {% for value in row.values() %}
+                        <td>{{ value }}</td>
+                    {% endfor %}
+                </tr>
                 {% endfor %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for row in tables %}
-            <tr>
-                {% for value in row.values() %}
-                    <td>{{ value }}</td>
-                {% endfor %}
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+
+        <!-- 個人門市紀錄表 -->
+        {% if tables_bottom|length > 0 %}
+            <h2>門市紀錄表</h2>
+            <table>
+                <thead>
+                    <tr>
+                        {% for key in tables_bottom[0].keys() %}
+                            <th>{{ key }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in tables_bottom %}
+                    <tr>
+                        {% for value in row.values() %}
+                            <td>{{ value }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
     {% endif %}
 </body>
 </html>
