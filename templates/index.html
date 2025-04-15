@@ -4,24 +4,15 @@
     <meta charset="UTF-8">
     <title>門市資料查詢</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 40px;
-            background-color: #f7f7f7;
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-        form, .buttons {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        input[type="text"] {
+        body { font-family: Arial, sans-serif; padding: 40px; background-color: #f7f7f7; }
+        h1 { text-align: center; color: #333; }
+        form, .buttons { text-align: center; margin-bottom: 20px; }
+        input[type="text"], select {
             padding: 10px;
-            width: 150px;
+            width: 160px;
             border-radius: 5px;
             border: 1px solid #ccc;
+            margin: 5px;
         }
         button {
             padding: 10px 15px;
@@ -45,13 +36,8 @@
             text-align: center;
             word-wrap: break-word;
         }
-        th {
-            background-color: #007BFF;
-            color: white;
-        }
-        tr:hover {
-            background-color: #f1f1f1;
-        }
+        th { background-color: #007BFF; color: white; }
+        tr:hover { background-color: #f1f1f1; }
         .highlight-row td {
             color: red;
             font-weight: bold;
@@ -61,15 +47,30 @@
 </head>
 <body>
     <h1>
-    {% if personal_page %}
-        PMQ2 個人查詢
-    {% else %}
-        PMQ2 門市資料查詢
-    {% endif %}
+        {% if personal_page %} PMQ2 個人查詢
+        {% elif report_page %} 報修查詢
+        {% else %} PMQ2 門市資料查詢
+        {% endif %}
     </h1>
 
     <form method="get">
-        <input type="text" name="keyword" placeholder="請輸入關鍵字查詢" value="{{ keyword }}">
+        {% if not report_page %}
+            <input type="text" name="keyword" placeholder="請輸入關鍵字查詢" value="{{ keyword }}">
+        {% endif %}
+        {% if report_page %}
+            <input type="text" name="store_id" placeholder="門店編號" value="{{ store_id }}">
+            <select name="repair_item">
+                <option value="">-- 選擇報修類別 --</option>
+                {% for item in [
+                    'HL-TM主機', 'HL-熱感發票機', 'HL-立式掃描器', 'HL-多卡機QP3000E', 'HL-CCD掃描器(TM)',
+                    'HL-CCD掃描器(SC)', 'HL-SC主機', 'HL-SC螢幕', 'HL-HUB', 'HL-雷射印表機', 'HL-4G分享器',
+                    'HL-PepLink負載平衡器', 'HL-LIFE-ET主機', 'HL-LIFE-ET熱感機T70II', 'HL-LIFE-ET印票機L90',
+                    'LIFE-ET 標籤印表機', 'HL-LIFE-ET QRcode掃描器', 'HL-LIFE-ET IC晶片讀卡機', 'HL-LIFE-ET 標籤印表機'
+                ] %}
+                    <option value="{{ item }}" {% if repair_item == item %}selected{% endif %}>{{ item }}</option>
+                {% endfor %}
+            </select>
+        {% endif %}
         <button type="submit">搜尋</button>
     </form>
 
@@ -77,121 +78,92 @@
         <p style="color: red; text-align: center;">無此資料</p>
     {% endif %}
 
-    <!-- 分頁按鈕 -->
     <div class="buttons">
         <a href="/吳宗鴻"><button>吳宗鴻</button></a>
         <a href="/湯家瑋"><button>湯家瑋</button></a>
         <a href="/狄澤洋"><button>狄澤洋</button></a>
-        {% if personal_page %}
+        <a href="/report"><button>報修查詢</button></a>
+        {% if personal_page or report_page %}
             <a href="/"><button style="background-color: #6c757d;">回首頁</button></a>
         {% endif %}
     </div>
 
-    {% if not personal_page %}
-        <!-- 部門數量區域 -->
+    {% if not personal_page and not report_page %}
         <h2>部門數量</h2>
         <table>
             <thead>
-                <tr>
-                    {% for key in department_table[0].keys() %}
-                        <th>{{ key }}</th>
-                    {% endfor %}
-                </tr>
+                <tr>{% for key in department_table[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr>
             </thead>
             <tbody>
                 {% for row in department_table %}
-                <tr>
-                    {% for value in row.values() %}
-                        <td>{{ value }}</td>
-                    {% endfor %}
-                </tr>
+                    <tr>{% for value in row.values() %}<td>{{ value }}</td>{% endfor %}</tr>
                 {% endfor %}
             </tbody>
         </table>
 
-        <!-- 工作統計區域 -->
         <h2>工作統計</h2>
         <table>
             <thead>
-                <tr>
-                    {% for key in workstats_table[0].keys() %}
-                        <th>{{ key }}</th>
-                    {% endfor %}
-                </tr>
+                <tr>{% for key in workstats_table[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr>
             </thead>
             <tbody>
                 {% for row in workstats_table %}
-                <tr>
-                    {% for value in row.values() %}
-                        <td>{{ value }}</td>
-                    {% endfor %}
-                </tr>
+                    <tr>{% for value in row.values() %}<td>{{ value }}</td>{% endfor %}</tr>
                 {% endfor %}
             </tbody>
         </table>
 
-        <!-- 門市資料表格 -->
         {% if tables|length > 0 %}
             <h2>門市資料</h2>
             <table>
                 <thead>
-                    <tr>
-                        {% for key in tables[0].keys() %}
-                            <th>{{ key }}</th>
-                        {% endfor %}
-                    </tr>
+                    <tr>{% for key in tables[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr>
                 </thead>
                 <tbody>
                     {% for row in tables %}
-                    <tr>
-                        {% for value in row.values() %}
-                            <td>{{ value }}</td>
-                        {% endfor %}
-                    </tr>
+                        <tr>{% for value in row.values() %}<td>{{ value }}</td>{% endfor %}</tr>
                     {% endfor %}
                 </tbody>
             </table>
         {% endif %}
-    {% else %}
-        <!-- 個人工作統計 -->
+    {% elif personal_page %}
         <h2>個人工作統計</h2>
         <table>
             <thead>
-                <tr>
-                    {% for key in tables_top[0].keys() %}
-                        <th>{{ key }}</th>
-                    {% endfor %}
-                </tr>
+                <tr>{% for key in tables_top[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr>
             </thead>
             <tbody>
                 {% for row in tables_top %}
-                <tr {% if loop.index == 4 %}class="highlight-row"{% endif %}>
-                    {% for value in row.values() %}
-                        <td>{{ value }}</td>
-                    {% endfor %}
-                </tr>
+                    <tr {% if loop.index == 4 %}class="highlight-row"{% endif %}>
+                        {% for value in row.values() %}<td>{{ value }}</td>{% endfor %}
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>
 
-        <!-- 個人門市紀錄表 -->
         {% if tables_bottom|length > 0 %}
             <h2>門市紀錄表</h2>
             <table>
                 <thead>
-                    <tr>
-                        {% for key in tables_bottom[0].keys() %}
-                            <th>{{ key }}</th>
-                        {% endfor %}
-                    </tr>
+                    <tr>{% for key in tables_bottom[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr>
                 </thead>
                 <tbody>
                     {% for row in tables_bottom %}
-                    <tr>
-                        {% for value in row.values() %}
-                            <td>{{ value }}</td>
-                        {% endfor %}
-                    </tr>
+                        <tr>{% for value in row.values() %}<td>{{ value }}</td>{% endfor %}</tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    {% elif report_page %}
+        {% if tables|length > 0 %}
+            <h2>報修紀錄</h2>
+            <table>
+                <thead>
+                    <tr>{% for key in tables[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr>
+                </thead>
+                <tbody>
+                    {% for row in tables %}
+                        <tr>{% for value in row.values() %}<td>{{ value }}</td>{% endfor %}</tr>
                     {% endfor %}
                 </tbody>
             </table>
