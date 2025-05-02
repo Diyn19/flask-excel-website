@@ -43,6 +43,17 @@
             font-weight: bold;
             border-top: 2px solid black;
         }
+
+        .status-pm {
+            background-color: red;
+            color: white;
+        }
+        .status-replaced {
+            color: green;
+        }
+        .status-not-replaced {
+            color: red;
+        }
     </style>
 </head>
 <body>
@@ -135,24 +146,8 @@
             <tbody>
                 {% for row in tables_top %}
                     <tr {% if loop.index == 4 %}class="highlight-row"{% endif %}>
-    {% for key, value in row.items() %}
-        {% set cell_class = "" %}
-        {% set cell_style = "" %}
-
-        {% if key == 'Star' %}
-            {% if value == '已PM未更換' %}
-                {% set cell_style = "background-color: red; color: white;" %}
-            {% elif value == '已更換' %}
-                {% set cell_style = "color: green;" %}
-            {% elif value == '未更換' %}
-                {% set cell_style = "color: red;" %}
-            {% endif %}
-        {% endif %}
-
-        <td style="{{ cell_style }}">{{ value }}</td>
-    {% endfor %}
-</tr>
-
+                        {% for value in row.values() %}<td>{{ value }}</td>{% endfor %}
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -165,7 +160,23 @@
                 </thead>
                 <tbody>
                     {% for row in tables_bottom %}
-                        <tr>{% for value in row.values() %}<td>{{ value }}</td>{% endfor %}</tr>
+                        <tr>
+                            {% for key, value in row.items() %}
+                                {% if key == 'STAR' %}
+                                    <td
+                                        {% if value == '已PM未更換' %}
+                                            class="status-pm"
+                                        {% elif value == '已更換' %}
+                                            class="status-replaced"
+                                        {% elif value == '未更換' %}
+                                            class="status-not-replaced"
+                                        {% endif %}
+                                    >{{ value }}</td>
+                                {% else %}
+                                    <td>{{ value }}</td>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
                     {% endfor %}
                 </tbody>
             </table>
