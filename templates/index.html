@@ -135,8 +135,24 @@
             <tbody>
                 {% for row in tables_top %}
                     <tr {% if loop.index == 4 %}class="highlight-row"{% endif %}>
-                        {% for value in row.values() %}<td>{{ value }}</td>{% endfor %}
-                    </tr>
+    {% for key, value in row.items() %}
+        {% set cell_class = "" %}
+        {% set cell_style = "" %}
+
+        {% if key == 'Star' %}
+            {% if value == '已PM未更換' %}
+                {% set cell_style = "background-color: red; color: white;" %}
+            {% elif value == '已更換' %}
+                {% set cell_style = "color: green;" %}
+            {% elif value == '未更換' %}
+                {% set cell_style = "color: red;" %}
+            {% endif %}
+        {% endif %}
+
+        <td style="{{ cell_style }}">{{ value }}</td>
+    {% endfor %}
+</tr>
+
                 {% endfor %}
             </tbody>
         </table>
