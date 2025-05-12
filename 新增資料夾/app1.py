@@ -11,15 +11,15 @@ def clean_df(df):
 
 @app.route('/')
 def index():
-    df_department = pd.read_excel('data.xlsx', sheet_name='首頁', usecols="A:F", nrows=1)
+    df_department = pd.read_excel('data.xlsx', sheet_name='首頁', usecols="A:E", nrows=1)
     df_department = clean_df(df_department)
 
-    df_workstats = pd.read_excel('data.xlsx', sheet_name='首頁', usecols="A:G", skiprows=2, nrows=2)
+    df_workstats = pd.read_excel('data.xlsx', sheet_name='首頁', usecols="A:F", skiprows=2, nrows=2)
     df_workstats = clean_df(df_workstats)
 
-    df = pd.read_excel('data.xlsx', sheet_name=0, header=13, nrows=250, usecols="A:O")
+    df = pd.read_excel('data.xlsx', sheet_name=0, header=13, nrows=250, usecols="A:Z")
     df = clean_df(df)
-    df = df[['門市編號', '門市名稱', 'PMQ2檢核', '專案檢核', 'HUB', '完工檢核']]
+    df = df[['門市編號', '門市名稱', '鄉鎮市區', 'PMQ2檢核', 'EDC檢核', '發票機檢核', '數量', '完工檢核']]
 
     keyword = request.args.get('keyword', '').strip()
     no_data_found = False
