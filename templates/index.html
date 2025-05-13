@@ -54,6 +54,21 @@
         .status-not-replaced {
             color: red;
         }
+
+        /* 新增：完工檢核樣式 */
+        .workcheck-star {
+            color: red;
+            font-weight: bold;
+        }
+        .workcheck-hub {
+            color: black;
+            font-weight: bold;
+            background-color: #d8ecff;
+        }
+        .workcheck-edc {
+            color: red;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -132,7 +147,23 @@
                 </thead>
                 <tbody>
                     {% for row in tables %}
-                        <tr>{% for value in row.values() %}<td>{{ value }}</td>{% endfor %}</tr>
+                        <tr>
+                            {% for key, value in row.items() %}
+                                {% if key == '完工檢核' %}
+                                    <td
+                                        {% if 'STAR異常' in value %}
+                                            class="workcheck-star"
+                                        {% elif 'HUB異常' in value %}
+                                            class="workcheck-hub"
+                                        {% elif 'EDC異常' in value %}
+                                            class="workcheck-edc"
+                                        {% endif %}
+                                    >{{ value }}</td>
+                                {% else %}
+                                    <td>{{ value }}</td>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
                     {% endfor %}
                 </tbody>
             </table>
