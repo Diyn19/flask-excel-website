@@ -54,11 +54,23 @@
         .status-not-replaced {
             color: red;
         }
+        .status-repair { 
+             color: black;
+            font-weight: bold;
+            background-color: #d8ecff;
+	 }
 
         /* 新增：完工檢核樣式 */
         .workcheck-star {
             color: red;
             font-weight: bold;
+        }
+        .workcheck-repair {
+            color: black;
+            font-weight: bold;
+            background-color: #d8ecff;
+        }
+        .wo
         }
         .workcheck-hub {
             color: black;
@@ -157,6 +169,8 @@
                                             class="workcheck-hub"
                                         {% elif 'EDC異常' in value %}
                                             class="workcheck-edc"
+					{% elif '完工已補裝' in value %}
+                                            class="workcheck-repair"
                                         {% endif %}
                                     >{{ value }}</td>
                                 {% else %}
@@ -197,6 +211,8 @@
                                     <td
                                         {% if value == '已PM未更換' %}
                                             class="status-pm"
+					 {% elif value == '完工已補裝' %}
+                                            class="status-repair"
                                         {% elif value == '已更換' %}
                                             class="status-replaced"
                                         {% elif value == '未更換' %}
