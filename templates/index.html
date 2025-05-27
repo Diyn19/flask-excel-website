@@ -130,7 +130,9 @@
         <h2>部門數量</h2>
         <table>
             <thead>
-                <tr>{% for key in department_table[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr>
+                {% if department_table %}
+<tr>{% for key in department_table[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr>
+{% endif %}
             </thead>
             <tbody>
                 {% for row in department_table %}
@@ -142,7 +144,9 @@
         <h2>工作統計</h2>
         <table>
             <thead>
-                <tr>{% for key in workstats_table[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr>
+                {% if workstats_table %}
+<tr>{% for key in workstats_table[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr>
+{% endif %}
             </thead>
             <tbody>
                 {% for row in workstats_table %}
