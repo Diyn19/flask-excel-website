@@ -20,21 +20,14 @@ data_file = "data.xlsx"
 data_wb = load_workbook(data_file)
 data_ws = data_wb["IM"]
 
-# 抓最後案號（C欄）
-case_col_index = 3
-last_case_id = None
-for row in reversed(list(data_ws.iter_rows(min_row=2, values_only=True))):
-    if row[case_col_index - 1]:
-        last_case_id = str(row[case_col_index - 1]).strip()
-        break
+# 取得所有現有案號（C欄，第3欄）
+existing_case_ids = set()
+for row in data_ws.iter_rows(min_row=2, min_col=3, max_col=3):
+    val = row[0].value
+    if val:
+        existing_case_ids.add(str(val).strip())
 
-print("最後案號：", last_case_id)
-try:
-    last_case_number = int(last_case_id)
-except:
-    last_case_number = 0
-
-# 準備參考格式
+# 參考格式用於複製樣式與公式
 ref_row = data_ws.max_row
 ref_row_height = 21.66
 ref_cells = {cell.column: cell for cell in data_ws[ref_row]}
@@ -59,16 +52,15 @@ for tag in month_tags:
     for row in report_ws.iter_rows(min_row=start_row):
         case_cell = row[2]  # C欄
         case_id_raw = str(case_cell.value).strip() if case_cell.value else ""
-        try:
-            case_number = int(case_id_raw)
-        except:
+        if not case_id_raw or not case_id_raw.isdigit():
             continue
 
-        if case_number > last_case_number:
+        if case_id_raw not in existing_case_ids:
             values = [cell.value for cell in row]
             if all(v is None for v in values):
                 break
             append_rows.append(values)
+            existing_case_ids.add(case_id_raw)  # 確保不重複新增
 
     print(f"   ➕ 發現 {len(append_rows)} 列新資料")
     total_new_rows += len(append_rows)
