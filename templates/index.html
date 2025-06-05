@@ -59,6 +59,24 @@
             font-weight: bold;
             background-color: #d8ecff;
 	 }
+	#backToTop {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 1000;
+    display: none;
+    padding: 10px 15px;
+    font-size: 16px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+#backToTop:hover {
+    background-color: #0056b3;
+}
 
         /* 新增：完工檢核樣式 */
         .workcheck-star {
@@ -247,5 +265,26 @@
             </table>
         {% endif %}
     {% endif %}
+
+<button id="backToTop" onclick="scrollToTop()">回頂端</button>
+
+<script>
+    // 滾動到頂端的功能
+    function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // 當頁面滾動到一定高度才顯示按鈕
+    window.onscroll = function () {
+        const button = document.getElementById("backToTop");
+        if (document.documentElement.scrollTop > 100) {
+            button.style.display = "block";
+        } else {
+            button.style.display = "none";
+        }
+    };
+</script>
+
+
 </body>
 </html>
