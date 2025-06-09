@@ -1,36 +1,33 @@
 @echo off
+setlocal enabledelayedexpansion
+
 cd /d D:\SynologyDrive\flask
 
-:: 執行 Excel_Edge.py
+echo [1/6] 執行 Excel_Edge.py...
 python "Excel_Edge.py"
 if errorlevel 1 goto error
 
-pause
-
-:: 執行 run_update2.py
+echo [2/6] 執行 run_update2.py...
 python "run_update2.py"
 if errorlevel 1 goto error
 
-pause
-
-:: 執行 data_updw.py 並啟動 save_excel.exe
+echo [3/6] 執行 data_updw.py...
 python "data_updw.py"
 if errorlevel 1 goto error
 
+echo [4/6] 啟動 save_excel.exe...
 start "" "save_excel.exe"
-pause
+:: 不需檢查 start 成功與否，通常不影響流程
 
-:: 進入 Git 專案資料夾
+echo [5/6] 進行 Git 操作...
 cd /d D:\SynologyDrive\flask
 
-:: 拉取遠端最新版本
 git pull
 if errorlevel 1 goto error
 
-:: 加入所有變更
 git add -A
 
-:: 建立時間戳記
+:: 建立 timestamp（格式：YYYY-MM-DD_HH:MM:SS）
 for /f "tokens=1-3 delims=/ " %%a in ("%date%") do (
     set y=%%c
     set m=%%a
@@ -43,10 +40,11 @@ if errorlevel 1 goto error
 git push
 if errorlevel 1 goto error
 
+echo [6/6] 所有程序已完成！
 pause
-exit
+exit /b
 
 :error
-echo 發生錯誤，請檢查程式執行狀況。
+echo 錯誤：某個步驟執行失敗，流程中止。
 pause
 exit /b
