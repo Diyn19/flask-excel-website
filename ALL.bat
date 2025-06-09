@@ -3,23 +3,23 @@ setlocal enabledelayedexpansion
 
 cd /d D:\SynologyDrive\flask
 
-echo [1/6] åŸ·è¡Œ Excel_Edge.py...
+echo [1/6] °õ¦æ Excel_Edge.py...
 python "Excel_Edge.py"
 if errorlevel 1 goto error
 
-echo [2/6] åŸ·è¡Œ run_update2.py...
+echo [2/6] °õ¦æ run_update2.py...
 python "run_update2.py"
 if errorlevel 1 goto error
 
-echo [3/6] åŸ·è¡Œ data_updw.py...
+echo [3/6] °õ¦æ data_updw.py...
 python "data_updw.py"
 if errorlevel 1 goto error
 
-echo [4/6] å•Ÿå‹• save_excel.exe...
-start "" "save_excel.exe"
-:: ä¸éœ€æª¢æŸ¥ start æˆåŠŸèˆ‡å¦ï¼Œé€šå¸¸ä¸å½±éŸ¿æµç¨‹
+echo [4/6] ±Ò°Ê save_excel.exe...
+start /wait "" "save_excel.exe"
+if errorlevel 1 goto error
 
-echo [5/6] é€²è¡Œ Git æ“ä½œ...
+echo [5/6] ¶i¦æ Git ¾Ş§@...
 cd /d D:\SynologyDrive\flask
 
 git pull
@@ -27,7 +27,7 @@ if errorlevel 1 goto error
 
 git add -A
 
-:: å»ºç«‹ timestampï¼ˆæ ¼å¼ï¼šYYYY-MM-DD_HH:MM:SSï¼‰
+:: «Ø¥ß timestamp¡]®æ¦¡¡GYYYY-MM-DD_HH:MM:SS¡^
 for /f "tokens=1-3 delims=/ " %%a in ("%date%") do (
     set y=%%c
     set m=%%a
@@ -40,11 +40,11 @@ if errorlevel 1 goto error
 git push
 if errorlevel 1 goto error
 
-echo [6/6] æ‰€æœ‰ç¨‹åºå·²å®Œæˆï¼
+echo [6/6] ©Ò¦³µ{§Ç¤w§¹¦¨¡I
 pause
 exit /b
 
 :error
-echo éŒ¯èª¤ï¼šæŸå€‹æ­¥é©ŸåŸ·è¡Œå¤±æ•—ï¼Œæµç¨‹ä¸­æ­¢ã€‚
+echo ¿ù»~¡G¬Y­Ó¨BÆJ°õ¦æ¥¢±Ñ¡A¬yµ{¤¤¤î¡C
 pause
 exit /b

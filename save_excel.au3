@@ -17,3 +17,5 @@ $oExcel.Quit()
 ; 清除物件
 $oWorkbook = 0
 $oExcel = 0
+
+Exit 0  ; 成功時
