@@ -10,7 +10,7 @@ from datetime import datetime
 
 # 當前年月
 yyyymm = datetime.now().strftime("%Y%m")
-download_path = r"D:\SynologyDrive\flask\IM"
+download_path = r"D:\flask\IM"
 base_filename = f"{yyyymm}_HL_Maintain_Report.xlsx"
 pattern = os.path.join(download_path, f"{yyyymm}_HL_Maintain_Report*.xlsx")
 

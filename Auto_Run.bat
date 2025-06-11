@@ -1,7 +1,7 @@
 @echo off
 setlocal enabledelayedexpansion
 
-cd /d D:\SynologyDrive\flask
+cd /d D:\flask
 
 echo [1/6] 執行 Excel_Edge.py...
 python "Excel_Edge.py"
@@ -20,7 +20,7 @@ start /wait "" "save_excel.exe"
 if errorlevel 1 goto error
 
 echo [5/6] 進行 Git 操作...
-cd /d D:\SynologyDrive\flask
+cd /d D:\flask
 
 git pull
 if errorlevel 1 goto error
