@@ -1,4 +1,6 @@
 @echo off
+git pull
+
 setlocal enabledelayedexpansion
 
 cd /d D:\flask
