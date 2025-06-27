@@ -14,6 +14,14 @@
             border: 1px solid #ccc;
             margin: 5px;
         }
+		.custom-row-4 {
+			border-top: 3px solid black;  /* 粗黑上框線 */
+			color: black;                 /* 文字黑色 */
+			font-weight: bold;            /* 如果想要字體加粗可以加 */
+		}
+		.custom-row-4 td {
+			color: black;                 /* 確保所有欄位文字都黑色 */
+		}		
         button {
             padding: 10px 15px;
             margin: 5px;
@@ -23,11 +31,15 @@
             border-radius: 5px;
             cursor: pointer;
         }
+        .table-container {
+            overflow-y: auto;
+            max-height: 600px;
+            border: 1px solid #ccc;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
             background-color: white;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             table-layout: fixed;
         }
         th, td {
@@ -36,14 +48,19 @@
             text-align: center;
             word-wrap: break-word;
         }
-        th { background-color: #007BFF; color: white; }
+        th {
+            background-color: #007BFF;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
         tr:hover { background-color: #f1f1f1; }
         .highlight-row td {
             color: red;
             font-weight: bold;
             border-top: 2px solid black;
         }
-
         .status-pm {
             background-color: red;
             color: white;
@@ -55,30 +72,28 @@
             color: red;
         }
         .status-repair { 
-             color: black;
+            color: black;
             font-weight: bold;
             background-color: #d8ecff;
-	 }
-	#backToTop {
-    position: fixed;
-    bottom: 230px;
-    right: 30px;
-    z-index: 1000;
-    display: none;
-    padding: 10px 15px;
-    font-size: 16px;
-    background-color: #007BFF;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
-#backToTop:hover {
-    background-color: #0056b3;
-}
-
-        /* 新增：完工檢核樣式 */
+        }
+        #backToTop {
+            position: fixed;
+            bottom: 230px;
+            right: 30px;
+            z-index: 1000;
+            display: none;
+            padding: 10px 15px;
+            font-size: 16px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        #backToTop:hover {
+            background-color: #0056b3;
+        }
         .workcheck-star {
             color: red;
             font-weight: bold;
@@ -87,8 +102,6 @@
             color: black;
             font-weight: bold;
             background-color: #d8ecff;
-        }
-        .wo
         }
         .workcheck-hub {
             color: black;
@@ -103,9 +116,9 @@
 </head>
 <body>
     <h1>
-        {% if personal_page %} PMQ2 個人查詢
+        {% if personal_page %} PMQ3 個人查詢
         {% elif report_page %} 報修查詢
-        {% else %} PMQ2 門市資料查詢
+        {% else %} PMQ3 門市資料查詢
         {% endif %}
     </h1>
 
@@ -114,7 +127,7 @@
             <input type="text" name="keyword" placeholder="請輸入關鍵字查詢" value="{{ keyword }}">
         {% endif %}
         {% if report_page %}
-            <input type="text" name="store_id" placeholder="門店編號" value="{{ store_id }}">
+            <input type="text" name="store_id" placeholder="門市編號" value="{{ store_id }}">
             <select name="repair_item">
                 <option value="">-- 選擇報修類別 --</option>
                 {% for item in [
@@ -146,145 +159,195 @@
 
     {% if not personal_page and not report_page %}
         <h2>部門數量</h2>
-        <table>
-            <thead>
-                {% if department_table %}
-<tr>{% for key in department_table[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr>
-{% endif %}
-            </thead>
-            <tbody>
-                {% for row in department_table %}
-                    <tr>{% for value in row.values() %}<td>{{ value }}</td>{% endfor %}</tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-        <h2>工作統計</h2>
-        <table>
-            <thead>
-                {% if workstats_table %}
-<tr>{% for key in workstats_table[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr>
-{% endif %}
-            </thead>
-            <tbody>
-                {% for row in workstats_table %}
-                    <tr>{% for value in row.values() %}<td>{{ value }}</td>{% endfor %}</tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-        {% if tables|length > 0 %}
-            <h2>門市資料</h2>
+        <div class="table-container">
             <table>
                 <thead>
-                    <tr>{% for key in tables[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr>
+                    {% if department_table %}
+                    <tr>{% for key in department_table[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr>
+                    {% endif %}
                 </thead>
                 <tbody>
-                    {% for row in tables %}
-                        <tr>
-                            {% for key, value in row.items() %}
-                                {% if key == '完工檢核' %}
-                                    <td
-                                        {% if 'STAR異常' in value %}
-                                            class="workcheck-star"
-                                        {% elif 'HUB異常' in value %}
-                                            class="workcheck-hub"
-                                        {% elif 'EDC異常' in value %}
-                                            class="workcheck-edc"
-					{% elif '完工已補裝' in value %}
-                                            class="workcheck-repair"
-                                        {% endif %}
-                                    >{{ value }}</td>
-                                {% else %}
-                                    <td>{{ value }}</td>
-                                {% endif %}
-                            {% endfor %}
-                        </tr>
+                    {% for row in department_table %}
+                    <tr>{% for value in row.values() %}<td>{{ value }}</td>{% endfor %}</tr>
                     {% endfor %}
                 </tbody>
             </table>
-        {% endif %}
-    {% elif personal_page %}
-        <h2>個人工作統計</h2>
-        <table>
-            <thead>
-                <tr>{% for key in tables_top[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr>
-            </thead>
-            <tbody>
-                {% for row in tables_top %}
-                    <tr {% if loop.index == 4 %}class="highlight-row"{% endif %}>
-                        {% for value in row.values() %}<td>{{ value }}</td>{% endfor %}
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        </div>
 
-        {% if tables_bottom|length > 0 %}
-            <h2>門市紀錄表</h2>
+        <h2>季保養進度</h2>
+        <div class="table-container">
             <table>
                 <thead>
+                    {% if seasons_table %}
+                    <tr>{% for key in seasons_table[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr>
+                    {% endif %}
+                </thead>
+                <tbody>
+                    {% for row in seasons_table %}
+                    <tr>{% for value in row.values() %}<td>{{ value }}</td>{% endfor %}</tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <h2>
+            <button onclick="toggleSection('project1-content', event)" style="margin-right: 8px;">▶</button>
+            專案項目
+        </h2>
+        <div id="project1-content" style="display: none;" class="table-container">
+            <table>
+                <thead>
+                    {% if project1_table %}
+                    <tr>{% for key in project1_table[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr>
+                    {% endif %}
+                </thead>
+                <tbody>
+                    {% for row in project1_table %}
+                    <tr>{% for value in row.values() %}<td>{{ value }}</td>{% endfor %}</tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <h2>門市資料</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                    {% if tables %}
+                    <tr>{% for key in tables[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr>
+                    {% endif %}
+                </thead>
+                <tbody>
+                    {% for row in tables %}
+                    <tr {% if row['PMQ3檢核'] == 'PM' %} class="highlight-row" {% endif %}>
+                        {% for key, value in row.items() %}
+                            {% if key == 'PMQ3檢核' and value == 'PM' %}
+                                <td class="status-pm">{{ value }}</td>
+                            {% elif key == '專案檢核' and value == '已更換' %}
+                                <td class="status-replaced">{{ value }}</td>
+                            {% elif key == '專案檢核' and value == '未更換' %}
+                                <td class="status-not-replaced">{{ value }}</td>
+                            {% elif key == '完工檢核' and value == '報修' %}
+                                <td class="status-repair">{{ value }}</td>
+                            {% else %}
+                                <td>{{ value }}</td>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+
+    {% if personal_page %}
+        {% if show_top %}
+            <h2 id="season-title">季保養進度</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>{% for key in tables_top[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr>
+                    </thead>
+                    <tbody>
+                        {% for row in tables_top %}
+                        <tr {% if loop.index == 4 %}class="highlight-row"{% endif %}>
+                            {% for value in row.values() %}<td>{{ value }}</td>{% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+
+        {% if show_project %}
+            <h2>專案進度</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        {% if tables_project %}
+                        <tr>{% for key in tables_project[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr>
+                        {% endif %}
+                    </thead>
+                    <tbody>
+                        {% for row in tables_project %}
+                        <tr>{% for value in row.values() %}<td>{{ value }}</td>{% endfor %}</tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+
+        <h2>門市資料</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                    {% if tables_bottom %}
                     <tr>{% for key in tables_bottom[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr>
+                    {% endif %}
                 </thead>
                 <tbody>
                     {% for row in tables_bottom %}
-                        <tr>
-                            {% for key, value in row.items() %}
-                                {% if key == 'STAR' %}
-                                    <td
-                                        {% if value == '已PM未更換' %}
-                                            class="status-pm"
-					 {% elif value == '完工已補裝' %}
-                                            class="status-repair"
-                                        {% elif value == '已更換' %}
-                                            class="status-replaced"
-                                        {% elif value == '未更換' %}
-                                            class="status-not-replaced"
-                                        {% endif %}
-                                    >{{ value }}</td>
-                                {% else %}
-                                    <td>{{ value }}</td>
-                                {% endif %}
-                            {% endfor %}
-                        </tr>
+                    <tr>{% for value in row.values() %}<td>{{ value }}</td>{% endfor %}</tr>
                     {% endfor %}
                 </tbody>
             </table>
-        {% endif %}
-    {% elif report_page %}
-        {% if tables|length > 0 %}
-            <h2>報修紀錄</h2>
+        </div>
+    {% endif %}
+
+    {% if report_page %}
+        <h2>報修查詢</h2>
+        <div class="table-container">
             <table>
                 <thead>
+                    {% if tables %}
                     <tr>{% for key in tables[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr>
+                    {% endif %}
                 </thead>
                 <tbody>
                     {% for row in tables %}
-                        <tr>{% for value in row.values() %}<td>{{ value }}</td>{% endfor %}</tr>
+                    <tr>
+                        {% for value in row.values() %}
+                            <td>{{ value }}</td>
+                        {% endfor %}
+                    </tr>
                     {% endfor %}
                 </tbody>
             </table>
-        {% endif %}
+        </div>
     {% endif %}
 
-<button id="backToTop" onclick="scrollToTop()">回頂端</button>
+    <button id="backToTop" onclick="window.scrollTo({top: 0, behavior: 'smooth'});">回頂部</button>
 
 <script>
-    // 滾動到頂端的功能
-    function scrollToTop() {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+    function toggleSection(id, event) {
+        event.preventDefault();
+        const content = document.getElementById(id);
+        if (content.style.display === "none") {
+            content.style.display = "block";
+            event.target.textContent = "▼";
+        } else {
+            content.style.display = "none";
+            event.target.textContent = "▶";
+        }
     }
 
-    // 當頁面滾動到一定高度才顯示按鈕
-    window.onscroll = function () {
-        const button = document.getElementById("backToTop");
-        if (document.documentElement.scrollTop > 100) {
-            button.style.display = "block";
+    window.addEventListener('scroll', function() {
+        const btn = document.getElementById('backToTop');
+        if (window.scrollY > 100) {
+            btn.style.display = 'block';
         } else {
-            button.style.display = "none";
+            btn.style.display = 'none';
         }
-    };
+    });
 </script>
-
-
+<script>
+    const path = window.location.pathname;
+    const encodedName = path.slice(1);
+    const name = decodeURIComponent(encodedName);
+    if (name) {
+        const titleEl = document.getElementById('season-title');
+        titleEl.textContent = name + ' - 季保養進度';
+    }
+</script>
 </body>
 </html>
