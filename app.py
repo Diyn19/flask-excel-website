@@ -22,7 +22,7 @@ def index():
 
     df = pd.read_excel('data.xlsx', sheet_name=0, header=13, nrows=250, usecols="A:O")
     df = clean_df(df)
-    df = df[['門市編號', '門市名稱', 'PMQ3檢核', '專案檢核', 'HUB', '完工檢核']]
+    df = df[['門市編號', '門市名稱', 'PMQ2檢核', '專案檢核', 'HUB', '完工檢核']]
 
     keyword = request.args.get('keyword', '').strip()
     no_data_found = False
