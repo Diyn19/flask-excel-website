@@ -116,9 +116,9 @@
 </head>
 <body>
     <h1>
-        {% if personal_page %} PMQ3 個人查詢
+        {% if personal_page %} PMQ2 個人查詢
         {% elif report_page %} 報修查詢
-        {% else %} PMQ3 門市資料查詢
+        {% else %} PMQ2 門市資料查詢
         {% endif %}
     </h1>
 
@@ -219,9 +219,9 @@
                 </thead>
                 <tbody>
                     {% for row in tables %}
-                    <tr {% if row['PMQ3檢核'] == 'PM' %} class="highlight-row" {% endif %}>
+                    <tr {% if row['PMQ2檢核'] == 'PM' %} class="highlight-row" {% endif %}>
                         {% for key, value in row.items() %}
-                            {% if key == 'PMQ3檢核' and value == 'PM' %}
+                            {% if key == 'PMQ2檢核' and value == 'PM' %}
                                 <td class="status-pm">{{ value }}</td>
                             {% elif key == '專案檢核' and value == '已更換' %}
                                 <td class="status-replaced">{{ value }}</td>
