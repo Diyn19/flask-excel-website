@@ -3,9 +3,16 @@ setlocal enabledelayedexpansion
 
 cd /d D:\flask
 
-echo [1/6] 執行 Excel_Edge.py...
-python "Excel_Edge.py"
-if errorlevel 1 goto error
+:: 詢問是否跳過下載檔案
+set /p skipDownload=是否跳過下載檔案 [Y/N]：
+
+if /i "!skipDownload!"=="Y" (
+    echo [1/6] 已選擇跳過下載檔案。
+) else (
+	echo [1/6] 執行 Excel_Edge.py...
+	python "Excel_Edge.py"
+	if errorlevel 1 goto error
+)
 
 echo [2/6] 執行 run_update2.py...
 python "run_update2.py"
