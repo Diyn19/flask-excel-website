@@ -116,10 +116,13 @@
 </head>
 <body>
     <h1>
-        {% if personal_page %} PMQ3 個人查詢
-        {% elif report_page %} 報修查詢
-        {% else %} PMQ3 門市資料查詢
-        {% endif %}
+    {% if personal_page %} PMQ3 個人查詢
+    {% elif report_page %} 報修查詢
+    {% else %} PMQ3 門市資料查詢
+    {% endif %}
+    <span style="float: right; font-size: 16px; color: gray;">
+        更新日期：{{ update_date }}
+    </span>
     </h1>
 
     <form method="get">

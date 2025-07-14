@@ -1,42 +1,53 @@
 import pandas as pd
-from flask import Flask, render_template, request
+import requests
+from io import BytesIO
+from flask import Flask, render_template, request, abort
+import os
 
 app = Flask(__name__)
 
-# 清理資料
+GITHUB_XLSX_URL = 'https://raw.githubusercontent.com/Diyn19/flask-excel-website/master/data.xlsx'
+cached_xls = None  # 快取變數
+
+def load_excel_from_github(url):
+    global cached_xls
+    if cached_xls:
+        return cached_xls
+    try:
+        response = requests.get(url, timeout=5)
+        content_type = response.headers.get('Content-Type', '')
+        if response.status_code == 200 and ('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' in content_type or url.endswith('.xlsx')):
+            cached_xls = pd.ExcelFile(BytesIO(response.content), engine='openpyxl')
+            return cached_xls
+        else:
+            print(f"❌ Excel 下載失敗：{response.status_code} - {content_type}")
+    except Exception as e:
+        print(f"❌ 錯誤下載 Excel: {e}")
+    abort(500, description="⚠️ 無法從 GitHub 載入 Excel 檔案")
+
 def clean_df(df):
     df.columns = df.columns.astype(str).str.replace('\n', '', regex=False)
-    df = df.fillna('')
-    return df
+    return df.fillna('')
 
 @app.route('/')
 def index():
-    df_department = pd.read_excel('data.xlsx', sheet_name='首頁', usecols="A:F", skiprows=4, nrows=1)
-    df_department = clean_df(df_department)
+    xls = load_excel_from_github(GITHUB_XLSX_URL)
 
-    df_seasons = pd.read_excel('data.xlsx', sheet_name='首頁', usecols="A:D", skiprows=8, nrows=2)
-    df_seasons = clean_df(df_seasons)
-
-    df_project1 = pd.read_excel('data.xlsx', sheet_name='首頁', usecols="A:E", skiprows=12, nrows=3)
-    df_project1 = clean_df(df_project1)
-
-    df = pd.read_excel('data.xlsx', sheet_name=0, header=13, nrows=250, usecols="A:O")
-    df = clean_df(df)
+    df_department = clean_df(pd.read_excel(xls, sheet_name='首頁', usecols="A:F", skiprows=4, nrows=1))
+    df_seasons = clean_df(pd.read_excel(xls, sheet_name='首頁', usecols="A:D", skiprows=8, nrows=2))
+    df_project1 = clean_df(pd.read_excel(xls, sheet_name='首頁', usecols="A:E", skiprows=12, nrows=3))
+    df = clean_df(pd.read_excel(xls, sheet_name=0, header=21, nrows=250, usecols="A:O"))
     df = df[['門市編號', '門市名稱', 'PMQ_檢核', '專案檢核', 'HUB', '完工檢核']]
 
     keyword = request.args.get('keyword', '').strip()
     no_data_found = False
-    tables = df.to_dict(orient='records')
-
     if keyword:
         df = df[df.apply(lambda row: row.astype(str).str.contains(keyword, case=False).any(), axis=1)]
-        if df.empty:
-            no_data_found = True
-        tables = df.to_dict(orient='records')
+        no_data_found = df.empty
 
     return render_template(
         'index.html',
-        tables=tables,
+        tables=df.to_dict(orient='records'),
         keyword=keyword,
         store_id='',
         repair_item='',
@@ -59,19 +70,15 @@ def personal(name):
     if not sheet_name:
         return f"找不到{name}的分頁", 404
 
-    df_top = pd.read_excel('data.xlsx', sheet_name=sheet_name, usecols="A:G", nrows=4)
-    df_top = clean_df(df_top)
-    for column in df_top.columns:
-        df_top[column] = df_top[column].apply(lambda x: int(x) if isinstance(x, (int, float)) and x == int(x) else x)
+    xls = load_excel_from_github(GITHUB_XLSX_URL)
 
-    df_project = pd.read_excel('data.xlsx', sheet_name=sheet_name, usecols="H:L", nrows=3)
-    df_project = clean_df(df_project)
-    for column in df_project.columns:
-        df_project[column] = df_project[column].apply(lambda x: int(x) if isinstance(x, (int, float)) and x == int(x) else x)
+    df_top = clean_df(pd.read_excel(xls, sheet_name=sheet_name, usecols="A:G", nrows=4))
+    df_top = df_top.applymap(lambda x: int(x) if isinstance(x, (int, float)) and x == int(x) else x)
 
-    # 永遠執行這段
-    df_bottom = pd.read_excel('data.xlsx', sheet_name=sheet_name, usecols="A:J", skiprows=5)
-    df_bottom = clean_df(df_bottom)
+    df_project = clean_df(pd.read_excel(xls, sheet_name=sheet_name, usecols="H:L", nrows=3))
+    df_project = df_project.applymap(lambda x: int(x) if isinstance(x, (int, float)) and x == int(x) else x)
+
+    df_bottom = clean_df(pd.read_excel(xls, sheet_name=sheet_name, usecols="A:J", skiprows=5))
 
     keyword = request.args.get('keyword', '').strip()
     no_data_found = False
@@ -79,13 +86,11 @@ def personal(name):
         df_bottom = df_bottom[df_bottom.apply(lambda row: row.astype(str).str.contains(keyword, case=False).any(), axis=1)]
         no_data_found = df_bottom.empty
 
-    tables_bottom = df_bottom.to_dict(orient='records')
-
     return render_template(
         'index.html',
         tables_top=df_top.to_dict(orient='records'),
         tables_project=df_project.to_dict(orient='records'),
-        tables_bottom=tables_bottom,
+        tables_bottom=df_bottom.to_dict(orient='records'),
         keyword=keyword,
         store_id='',
         repair_item='',
@@ -105,8 +110,9 @@ def report():
     tables = []
 
     if keyword or store_id or repair_item:
-        df = pd.read_excel('data.xlsx', sheet_name='IM')
-        df = clean_df(df)
+        xls = load_excel_from_github(GITHUB_XLSX_URL)
+
+        df = clean_df(pd.read_excel(xls, sheet_name='IM'))
         df = df[['案件類別', '門店編號', '門店名稱', '報修時間', '報修類別', '報修項目', '報修說明', '設備號碼', '服務人員', '工作內容']]
 
         if keyword:
@@ -135,4 +141,5 @@ def report():
     )
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 10000))
+    app.run(host='0.0.0.0', port=port)
