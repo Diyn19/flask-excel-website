@@ -22,7 +22,6 @@ def load_excel_from_github(url):
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' in content_type or url.endswith('.xlsx')
         ):
             cached_xls = pd.ExcelFile(BytesIO(response.content), engine='openpyxl')
-            # 取得 GitHub 檔案更新時間
             last_modified = response.headers.get('Last-Modified')
             if last_modified:
                 dt = datetime.strptime(last_modified, "%a, %d %b %Y %H:%M:%S %Z")
@@ -48,7 +47,7 @@ def index():
     df_seasons = clean_df(pd.read_excel(xls, sheet_name='首頁', usecols="A:D", skiprows=8, nrows=2))
     df_project1 = clean_df(pd.read_excel(xls, sheet_name='首頁', usecols="A:E", skiprows=12, nrows=3))
     df = clean_df(pd.read_excel(xls, sheet_name=0, header=21, nrows=250, usecols="A:O"))
-    df = df[['門市編號', '門市名稱', 'PMQ_檢核', '專案檢核', 'HUB', '完工檢核']]
+    df = df[['門市編號', '門市名稱', 'PMQ3檢核', '專案檢核', 'HUB', '完工檢核']]
 
     keyword = request.args.get('keyword', '').strip()
     no_data_found = False
