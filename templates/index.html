@@ -15,13 +15,13 @@
             margin: 5px;
         }
 		.custom-row-4 {
-			border-top: 3px solid black;
-			color: black;
-			font-weight: bold;
+			border-top: 3px solid black;  /* 粗黑上框線 */
+			color: black;                 /* 文字黑色 */
+			font-weight: bold;            /* 如果想要字體加粗可以加 */
 		}
 		.custom-row-4 td {
-			color: black;
-		}
+			color: black;                 /* 確保所有欄位文字都黑色 */
+		}		
         button {
             padding: 10px 15px;
             margin: 5px;
@@ -71,7 +71,7 @@
         .status-not-replaced {
             color: red;
         }
-        .status-repair {
+        .status-repair { 
             color: black;
             font-weight: bold;
             background-color: #d8ecff;
@@ -116,13 +116,10 @@
 </head>
 <body>
     <h1>
-    {% if personal_page %} PMQ3 個人查詢
-    {% elif report_page %} 報修查詢
-    {% else %} PMQ3 門市資料查詢
-    {% endif %}
-    <span style="float: right; font-size: 16px; color: gray;">
-        更新日期：{{ update_date }}
-    </span>
+        {% if personal_page %} PMQ3 個人查詢
+        {% elif report_page %} 報修查詢
+        {% else %} PMQ3 門市資料查詢
+        {% endif %}
     </h1>
 
     <form method="get">
@@ -160,7 +157,142 @@
         {% endif %}
     </div>
 
-    {# 以下略過與你無變動部分 ... 到報修查詢區塊直接修改 #}
+    {% if not personal_page and not report_page %}
+        <h2>部門數量</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                    {% if department_table %}
+                    <tr>{% for key in department_table[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr>
+                    {% endif %}
+                </thead>
+                <tbody>
+                    {% for row in department_table %}
+                    <tr>{% for value in row.values() %}<td>{{ value }}</td>{% endfor %}</tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <h2>季保養進度</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                    {% if seasons_table %}
+                    <tr>{% for key in seasons_table[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr>
+                    {% endif %}
+                </thead>
+                <tbody>
+                    {% for row in seasons_table %}
+                    <tr>{% for value in row.values() %}<td>{{ value }}</td>{% endfor %}</tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <h2>
+            <button onclick="toggleSection('project1-content', event)" style="margin-right: 8px;">▶</button>
+            專案項目
+        </h2>
+        <div id="project1-content" style="display: block;" class="table-container">
+            <table>
+                <thead>
+                    {% if project1_table %}
+                    <tr>{% for key in project1_table[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr>
+                    {% endif %}
+                </thead>
+                <tbody>
+                    {% for row in project1_table %}
+                    <tr>{% for value in row.values() %}<td>{{ value }}</td>{% endfor %}</tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <h2>門市資料</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                    {% if tables %}
+                    <tr>{% for key in tables[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr>
+                    {% endif %}
+                </thead>
+                <tbody>
+                    {% for row in tables %}
+                    <tr {% if row['PMQ3檢核'] == 'PM' %} class="highlight-row" {% endif %}>
+                        {% for key, value in row.items() %}
+                            {% if key == 'PMQ3檢核' and value == 'PM' %}
+                                <td class="status-pm">{{ value }}</td>
+                            {% elif key == '專案檢核' and value == '已更換' %}
+                                <td class="status-replaced">{{ value }}</td>
+                            {% elif key == '專案檢核' and value == '未更換' %}
+                                <td class="status-not-replaced">{{ value }}</td>
+                            {% elif key == '完工檢核' and value == '代號異常' %}
+                                <td class="status-repair">{{ value }}</td>
+                            {% else %}
+                                <td>{{ value }}</td>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+
+    {% if personal_page %}
+        {% if show_top %}
+            <h2 id="season-title">季保養進度</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>{% for key in tables_top[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr>
+                    </thead>
+                    <tbody>
+                        {% for row in tables_top %}
+                        <tr {% if loop.index == 4 %}class="highlight-row"{% endif %}>
+                            {% for value in row.values() %}<td>{{ value }}</td>{% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+
+        {% if show_project %}
+            <h2>專案進度</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        {% if tables_project %}
+                        <tr>{% for key in tables_project[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr>
+                        {% endif %}
+                    </thead>
+                    <tbody>
+                        {% for row in tables_project %}
+                        <tr>{% for value in row.values() %}<td>{{ value }}</td>{% endfor %}</tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+
+        <h2>門市資料</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                    {% if tables_bottom %}
+                    <tr>{% for key in tables_bottom[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr>
+                    {% endif %}
+                </thead>
+                <tbody>
+                    {% for row in tables_bottom %}
+                    <tr>{% for value in row.values() %}<td>{{ value }}</td>{% endfor %}</tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
 
     {% if report_page %}
         <h2>報修查詢</h2>
@@ -174,19 +306,8 @@
                 <tbody>
                     {% for row in tables %}
                     <tr>
-                        {% for key, value in row.items() %}
-                            {% if key in ['報修時間', '處理時間'] and value %}
-                                {% set parts = value.split(" ") %}
-                                {% if parts | length == 2 %}
-                                    {% set date_parts = parts[0].split("-") %}
-                                    {% set time_parts = parts[1].split(":") %}
-                                    <td>{{ date_parts[0] }}/{{ date_parts[1] }}/{{ date_parts[2] }}/{{ time_parts[0] }}/{{ time_parts[1] }}</td>
-                                {% else %}
-                                    <td>{{ value }}</td>
-                                {% endif %}
-                            {% else %}
-                                <td>{{ value }}</td>
-                            {% endif %}
+                        {% for value in row.values() %}
+                            <td>{{ value }}</td>
                         {% endfor %}
                     </tr>
                     {% endfor %}
@@ -225,9 +346,7 @@
     const name = decodeURIComponent(encodedName);
     if (name) {
         const titleEl = document.getElementById('season-title');
-        if (titleEl) {
-            titleEl.textContent = name + ' - 季保養進度';
-        }
+        titleEl.textContent = name + ' - 季保養進度';
     }
 </script>
 </body>
