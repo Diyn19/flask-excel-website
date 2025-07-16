@@ -3,24 +3,30 @@ import requests
 from io import BytesIO
 from flask import Flask, render_template, request, abort
 import os
+from datetime import datetime
 
 app = Flask(__name__)
 
 GITHUB_XLSX_URL = 'https://raw.githubusercontent.com/Diyn19/flask-excel-website/master/data.xlsx'
-cached_xls = None  # 快取變數
+cached_xls = None
+last_modified_time = None  # 用來儲存版本時間戳記
 
 def load_excel_from_github(url):
-    global cached_xls
+    global cached_xls, last_modified_time
     if cached_xls:
         return cached_xls
     try:
         response = requests.get(url, timeout=5)
-        content_type = response.headers.get('Content-Type', '')
-        if response.status_code == 200 and ('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' in content_type or url.endswith('.xlsx')):
-            cached_xls = pd.ExcelFile(BytesIO(response.content), engine='openpyxl')
-            return cached_xls
-        else:
-            print(f"❌ Excel 下載失敗：{response.status_code} - {content_type}")
+        if response.status_code == 200:
+            content_type = response.headers.get('Content-Type', '')
+            if 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' in content_type or url.endswith('.xlsx'):
+                # 儲存版本時間
+                last_modified = response.headers.get('Last-Modified')
+                if last_modified:
+                    last_modified_time = datetime.strptime(last_modified, '%a, %d %b %Y %H:%M:%S %Z')
+                cached_xls = pd.ExcelFile(BytesIO(response.content), engine='openpyxl')
+                return cached_xls
+        print(f"❌ Excel 下載失敗：{response.status_code} - {content_type}")
     except Exception as e:
         print(f"❌ 錯誤下載 Excel: {e}")
     abort(500, description="⚠️ 無法從 GitHub 載入 Excel 檔案")
@@ -57,6 +63,7 @@ def index():
         seasons_table=df_seasons.to_dict(orient='records'),
         project1_table=df_project1.to_dict(orient='records'),
         no_data_found=no_data_found,
+        version_time=last_modified_time.strftime('%Y/%m/%d %H:%M') if last_modified_time else "無資料時間"
     )
 
 @app.route('/<name>')
@@ -98,7 +105,8 @@ def personal(name):
         report_page=False,
         no_data_found=no_data_found,
         show_top=True,
-        show_project=True
+        show_project=True,
+        version_time=last_modified_time.strftime('%Y/%m/%d %H:%M') if last_modified_time else "無資料時間"
     )
 
 @app.route('/report')
@@ -137,7 +145,8 @@ def report():
         repair_item=repair_item,
         personal_page=False,
         report_page=True,
-        no_data_found=no_data_found
+        no_data_found=no_data_found,
+        version_time=last_modified_time.strftime('%Y/%m/%d %H:%M') if last_modified_time else "無資料時間"
     )
 
 if __name__ == '__main__':
