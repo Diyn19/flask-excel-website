@@ -14,14 +14,14 @@
             border: 1px solid #ccc;
             margin: 5px;
         }
-        .custom-row-4 {
-            border-top: 3px solid black;
-            color: black;
-            font-weight: bold;
-        }
-        .custom-row-4 td {
-            color: black;
-        }
+		.custom-row-4 {
+			border-top: 3px solid black;  /* 粗黑上框線 */
+			color: black;                 /* 文字黑色 */
+			font-weight: bold;            /* 如果想要字體加粗可以加 */
+		}
+		.custom-row-4 td {
+			color: black;                 /* 確保所有欄位文字都黑色 */
+		}		
         button {
             padding: 10px 15px;
             margin: 5px;
@@ -71,7 +71,7 @@
         .status-not-replaced {
             color: red;
         }
-        .status-repair {
+        .status-repair { 
             color: black;
             font-weight: bold;
             background-color: #d8ecff;
@@ -112,12 +112,6 @@
             color: red;
             font-weight: bold;
         }
-        .version-info {
-            text-align: center;
-            color: #666;
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
     </style>
 </head>
 <body>
@@ -127,10 +121,6 @@
         {% else %} PMQ3 門市資料查詢
         {% endif %}
     </h1>
-
-    {% if version_info %}
-    <div class="version-info">版本：{{ version_info }}</div>
-    {% endif %}
 
     <form method="get">
         {% if not report_page %}

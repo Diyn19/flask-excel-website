@@ -8,25 +8,32 @@ from datetime import datetime
 app = Flask(__name__)
 
 GITHUB_XLSX_URL = 'https://raw.githubusercontent.com/Diyn19/flask-excel-website/master/data.xlsx'
-cached_xls = None
-last_modified_time = None  # 用來儲存版本時間戳記
+cached_xls = None  # 快取變數
+cached_version_info = None  # 快取版本時間戳記
+
+def get_version_info_from_response(response):
+    last_modified = response.headers.get('Last-Modified')
+    if last_modified:
+        try:
+            dt = datetime.strptime(last_modified, '%a, %d %b %Y %H:%M:%S %Z')
+            return dt.strftime("%Y/%m/%d %H:%M:%S")
+        except Exception:
+            pass
+    return datetime.now().strftime("%Y/%m/%d %H:%M:%S")
 
 def load_excel_from_github(url):
-    global cached_xls, last_modified_time
-    if cached_xls:
-        return cached_xls
+    global cached_xls, cached_version_info
+    if cached_xls and cached_version_info:
+        return cached_xls, cached_version_info
     try:
         response = requests.get(url, timeout=5)
-        if response.status_code == 200:
-            content_type = response.headers.get('Content-Type', '')
-            if 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' in content_type or url.endswith('.xlsx'):
-                # 儲存版本時間
-                last_modified = response.headers.get('Last-Modified')
-                if last_modified:
-                    last_modified_time = datetime.strptime(last_modified, '%a, %d %b %Y %H:%M:%S %Z')
-                cached_xls = pd.ExcelFile(BytesIO(response.content), engine='openpyxl')
-                return cached_xls
-        print(f"❌ Excel 下載失敗：{response.status_code} - {content_type}")
+        content_type = response.headers.get('Content-Type', '')
+        if response.status_code == 200 and ('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' in content_type or url.endswith('.xlsx')):
+            cached_version_info = get_version_info_from_response(response)
+            cached_xls = pd.ExcelFile(BytesIO(response.content), engine='openpyxl')
+            return cached_xls, cached_version_info
+        else:
+            print(f"❌ Excel 下載失敗：{response.status_code} - {content_type}")
     except Exception as e:
         print(f"❌ 錯誤下載 Excel: {e}")
     abort(500, description="⚠️ 無法從 GitHub 載入 Excel 檔案")
@@ -37,7 +44,7 @@ def clean_df(df):
 
 @app.route('/')
 def index():
-    xls = load_excel_from_github(GITHUB_XLSX_URL)
+    xls, version_info = load_excel_from_github(GITHUB_XLSX_URL)
 
     df_department = clean_df(pd.read_excel(xls, sheet_name='首頁', usecols="A:F", skiprows=4, nrows=1))
     df_seasons = clean_df(pd.read_excel(xls, sheet_name='首頁', usecols="A:D", skiprows=8, nrows=2))
@@ -63,7 +70,7 @@ def index():
         seasons_table=df_seasons.to_dict(orient='records'),
         project1_table=df_project1.to_dict(orient='records'),
         no_data_found=no_data_found,
-        version_time=last_modified_time.strftime('%Y/%m/%d %H:%M') if last_modified_time else "無資料時間"
+        version_info=version_info
     )
 
 @app.route('/<name>')
@@ -77,7 +84,7 @@ def personal(name):
     if not sheet_name:
         return f"找不到{name}的分頁", 404
 
-    xls = load_excel_from_github(GITHUB_XLSX_URL)
+    xls, version_info = load_excel_from_github(GITHUB_XLSX_URL)
 
     df_top = clean_df(pd.read_excel(xls, sheet_name=sheet_name, usecols="A:G", nrows=4))
     df_top = df_top.applymap(lambda x: int(x) if isinstance(x, (int, float)) and x == int(x) else x)
@@ -106,7 +113,7 @@ def personal(name):
         no_data_found=no_data_found,
         show_top=True,
         show_project=True,
-        version_time=last_modified_time.strftime('%Y/%m/%d %H:%M') if last_modified_time else "無資料時間"
+        version_info=version_info
     )
 
 @app.route('/report')
@@ -118,7 +125,7 @@ def report():
     tables = []
 
     if keyword or store_id or repair_item:
-        xls = load_excel_from_github(GITHUB_XLSX_URL)
+        xls, version_info = load_excel_from_github(GITHUB_XLSX_URL)
 
         df = clean_df(pd.read_excel(xls, sheet_name='IM'))
         df = df[['案件類別', '門店編號', '門店名稱', '報修時間', '報修類別', '報修項目', '報修說明', '設備號碼', '服務人員', '工作內容']]
@@ -136,6 +143,8 @@ def report():
             no_data_found = True
         else:
             tables = df.to_dict(orient='records')
+    else:
+        _, version_info = load_excel_from_github(GITHUB_XLSX_URL)
 
     return render_template(
         'index.html',
@@ -146,7 +155,7 @@ def report():
         personal_page=False,
         report_page=True,
         no_data_found=no_data_found,
-        version_time=last_modified_time.strftime('%Y/%m/%d %H:%M') if last_modified_time else "無資料時間"
+        version_info=version_info
     )
 
 if __name__ == '__main__':
