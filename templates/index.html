@@ -14,14 +14,14 @@
             border: 1px solid #ccc;
             margin: 5px;
         }
-		.custom-row-4 {
-			border-top: 3px solid black;  /* 粗黑上框線 */
-			color: black;                 /* 文字黑色 */
-			font-weight: bold;            /* 如果想要字體加粗可以加 */
-		}
-		.custom-row-4 td {
-			color: black;                 /* 確保所有欄位文字都黑色 */
-		}		
+        .custom-row-4 {
+            border-top: 3px solid black;
+            color: black;
+            font-weight: bold;
+        }
+        .custom-row-4 td {
+            color: black;
+        }
         button {
             padding: 10px 15px;
             margin: 5px;
@@ -61,17 +61,10 @@
             font-weight: bold;
             border-top: 2px solid black;
         }
-        .status-pm {
-            background-color: red;
-            color: white;
-        }
-        .status-replaced {
-            color: green;
-        }
-        .status-not-replaced {
-            color: red;
-        }
-        .status-repair { 
+        .status-pm { background-color: red; color: white; }
+        .status-replaced { color: green; }
+        .status-not-replaced { color: red; }
+        .status-repair {
             color: black;
             font-weight: bold;
             background-color: #d8ecff;
@@ -94,10 +87,7 @@
         #backToTop:hover {
             background-color: #0056b3;
         }
-        .workcheck-star {
-            color: red;
-            font-weight: bold;
-        }
+        .workcheck-star { color: red; font-weight: bold; }
         .workcheck-repair {
             color: black;
             font-weight: bold;
@@ -108,9 +98,13 @@
             font-weight: bold;
             background-color: #d8ecff;
         }
-        .workcheck-edc {
-            color: red;
-            font-weight: bold;
+        .workcheck-edc { color: red; font-weight: bold; }
+        .version-info {
+            text-align: center;
+            color: gray;
+            font-size: 14px;
+            margin-top: -25px;
+            margin-bottom: 20px;
         }
     </style>
 </head>
@@ -121,6 +115,10 @@
         {% else %} PMQ3 門市資料查詢
         {% endif %}
     </h1>
+
+    {% if version %}
+    <div class="version-info">版本：{{ version }}</div>
+    {% endif %}
 
     <form method="get">
         {% if not report_page %}
@@ -305,11 +303,7 @@
                 </thead>
                 <tbody>
                     {% for row in tables %}
-                    <tr>
-                        {% for value in row.values() %}
-                            <td>{{ value }}</td>
-                        {% endfor %}
-                    </tr>
+                    <tr>{% for value in row.values() %}<td>{{ value }}</td>{% endfor %}</tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -339,8 +333,7 @@
             btn.style.display = 'none';
         }
     });
-</script>
-<script>
+
     const path = window.location.pathname;
     const encodedName = path.slice(1);
     const name = decodeURIComponent(encodedName);
