@@ -3,21 +3,15 @@ setlocal enabledelayedexpansion
 
 cd /d D:\flask
 
-:: 新增功能：詢問是否直接開始 Git 操作
-set /p skipAll=是否直接開始 Git 操作 [Y/N]：
-if /i "!skipAll!"=="Y" (
-    goto git_operation
-)
-
-:: 原本詢問是否跳過下載檔案
+:: 詢問是否跳過下載檔案
 set /p skipDownload=是否跳過下載檔案 [Y/N]：
 
 if /i "!skipDownload!"=="Y" (
     echo [1/6] 已選擇跳過下載檔案。
 ) else (
-    echo [1/6] 執行 Excel_Edge.py...
-    python "Excel_Edge.py"
-    if errorlevel 1 goto error
+	echo [1/6] 執行 Excel_Edge.py...
+	python "Excel_Edge.py"
+	if errorlevel 1 goto error
 )
 
 echo [2/6] 執行 run_update2.py...
@@ -32,7 +26,6 @@ echo [4/6] 啟動 save_excel.exe...
 start /wait "" "save_excel.exe"
 if errorlevel 1 goto error
 
-:git_operation
 echo [5/6] 進行 Git 操作...
 cd /d D:\flask
 
