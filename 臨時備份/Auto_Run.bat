@@ -24,16 +24,22 @@ echo [2/6] 執行 run_update2.py...
 python "run_update2.py"
 if errorlevel 1 goto error
 
-echo [3/6] 執行 data_updw.py...
+:: 新增步驟：輸入版本號並執行 add_ver.py
+set /p vernum=請輸入版本號：
+echo [3/6] 寫入版本號 %vernum% 到 Excel...
+python "add_ver.py" %vernum%
+if errorlevel 1 goto error
+
+echo [4/6] 執行 data_updw.py...
 python "data_updw.py"
 if errorlevel 1 goto error
 
-echo [4/6] 啟動 save_excel.exe...
+echo [5/6] 啟動 save_excel.exe...
 start /wait "" "save_excel.exe"
 if errorlevel 1 goto error
 
 :git_operation
-echo [5/6] 進行 Git 操作...
+echo [6/6] 進行 Git 操作...
 cd /d D:\flask
 
 git pull
@@ -54,7 +60,7 @@ if errorlevel 1 goto error
 git push
 if errorlevel 1 goto error
 
-echo [6/6] 所有程序已完成！
+echo 所有程序已完成！
 pause
 exit /b
 
