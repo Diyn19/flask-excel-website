@@ -34,7 +34,7 @@ total_new_rows = 0
 
 # 逐一處理輸入的年月
 for tag in month_tags:
-    report_file = f"MFP/{tag}_Service_Count_Report.xlsx"  # ✅ 檔案名稱格式
+    report_file = f"IM/{tag}_Service_Count_Report.xlsx"  # ✅ 檔案名稱格式
     if not os.path.exists(report_file):
         print(f"❌ 找不到：{report_file}")
         continue

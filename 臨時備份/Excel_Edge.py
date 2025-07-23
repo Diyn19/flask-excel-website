@@ -24,68 +24,55 @@ options.add_experimental_option("prefs", {
     "safebrowsing.enabled": True
 })
 
-def safe_wait_and_find(driver, by, value, wait_time=10, retries=1, refresh_if_fail=False):
-    """
-    嘗試等待特定元素出現，若失敗可重新整理並再試
-    """
-    for attempt in range(retries + 1):
-        try:
-            wait = WebDriverWait(driver, wait_time)
-            return wait.until(EC.presence_of_element_located((by, value)))
-        except:
-            if refresh_if_fail and attempt < retries:
-                print(f"⚠️ 找不到元素 {value}，重新整理頁面 (第 {attempt+1} 次)...")
-                driver.refresh()
-                time.sleep(3)
-            else:
-                raise
-
 try:
+    # 啟動 Edge driver
     driver = webdriver.Edge(options=options)
-    wait = WebDriverWait(driver, 20)
+    wait = WebDriverWait(driver, 30)
 
     # 開啟網站並登入
     driver.get("http://192.168.1.252/service/")
-    safe_wait_and_find(driver, By.ID, "login_id").send_keys("pos0800")
+    wait.until(EC.presence_of_element_located((By.ID, "login_id"))).send_keys("pos0800")
     driver.find_element(By.ID, "login_pwd").send_keys("Pos0800")
     driver.find_element(By.CSS_SELECTOR, 'input[type="submit"][value="登入"]').click()
 
     # 切換至 iframe
     wait.until(EC.frame_to_be_available_and_switch_to_it((By.NAME, "iframe")))
 
-    # 回主框架點擊選單（支援自動重試）
+    # 回到主框架並點擊選單
     driver.switch_to.default_content()
-    safe_wait_and_find(driver, By.LINK_TEXT, "服務資料查詢", retries=1, refresh_if_fail=True).click()
+    wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "服務資料查詢"))).click()
     time.sleep(1)
-    safe_wait_and_find(driver, By.LINK_TEXT, "POS服務工作統計表", retries=1, refresh_if_fail=True).click()
+    wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "POS服務工作統計表"))).click()
 
-    # 切回 iframe
+    # 回到 iframe
     driver.switch_to.frame("iframe")
-    time.sleep(1)
+    time.sleep(2)
 
     # 選擇「萊爾富」
-    customer_field = safe_wait_and_find(driver, By.NAME, "customer", retries=1, refresh_if_fail=True)
+    customer_field = wait.until(EC.element_to_be_clickable((By.NAME, "customer")))
     customer_field.click()
     time.sleep(0.5)
-    safe_wait_and_find(driver, By.XPATH, '//select[@name="customer"]/option[contains(text(),"萊爾富")]').click()
+    customer_option = wait.until(EC.element_to_be_clickable((By.XPATH, '//select[@name="customer"]/option[contains(text(),"萊爾富")]')))
+    customer_option.click()
 
     # 選擇「新北勤務一部」
-    dept_field = safe_wait_and_find(driver, By.NAME, "dept_id")
+    dept_field = wait.until(EC.element_to_be_clickable((By.NAME, "dept_id")))
     dept_field.click()
     time.sleep(0.5)
-    safe_wait_and_find(driver, By.XPATH, '//select[@name="dept_id"]/option[contains(text(),"新北勤務一部")]').click()
+    dept_option = wait.until(EC.element_to_be_clickable((By.XPATH, '//select[@name="dept_id"]/option[contains(text(),"新北勤務一部")]')))
+    dept_option.click()
 
     # 按下查詢
     driver.find_element(By.XPATH, '//input[@type="submit" and @value="查詢"]').click()
 
-    # 等待匯出按鈕（支援重試）
-    safe_wait_and_find(driver, By.XPATH, '//input[@type="submit" and @value="匯出成EXCEL"]', retries=1, refresh_if_fail=True)
+    # 等待匯出按鈕
+    wait.until(EC.presence_of_element_located((By.XPATH, '//input[@type="submit" and @value="匯出成EXCEL"]')))
 
-    # 刪除舊檔案
+    # 刪除本月相關舊檔案
     for f in glob.glob(pattern):
         os.remove(f)
 
-    # 匯出
+    # 點擊匯出
     driver.find_element(By.XPATH, '//input[@type="submit" and @value="匯出成EXCEL"]').click()
 
     # 等待下載完成
