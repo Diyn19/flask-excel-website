@@ -8,11 +8,13 @@ import shutil
 import glob
 from datetime import datetime
 
-# 當前年月
+# 時間與檔名設定
 yyyymm = datetime.now().strftime("%Y%m")
 download_path = r"D:\flask\IM"
-base_filename = f"{yyyymm}_HL_Maintain_Report.xlsx"
-pattern = os.path.join(download_path, f"{yyyymm}_HL_Maintain_Report*.xlsx")
+pos_pattern = os.path.join(download_path, f"{yyyymm}_HL_Maintain_Report*.xlsx")
+mfp_pattern = os.path.join(download_path, f"{yyyymm}_Service_Count_Report*.xlsx")
+pos_final = os.path.join(download_path, f"{yyyymm}_HL_Maintain_Report.xlsx")
+mfp_final = os.path.join(download_path, f"{yyyymm}_Service_Count_Report.xlsx")
 
 # Edge 選項
 options = webdriver.EdgeOptions()
@@ -25,30 +27,34 @@ options.add_experimental_option("prefs", {
 })
 
 try:
-    # 啟動 Edge driver
     driver = webdriver.Edge(options=options)
     wait = WebDriverWait(driver, 30)
 
-    # 開啟網站並登入
-    driver.get("http://192.168.1.252/service/")
-    wait.until(EC.presence_of_element_located((By.ID, "login_id"))).send_keys("pos0800")
-    driver.find_element(By.ID, "login_pwd").send_keys("Pos0800")
-    driver.find_element(By.CSS_SELECTOR, 'input[type="submit"][value="登入"]').click()
+    # 登入
+    driver.get("http://eip.toshibatec.com.tw/Main.aspx")
+    wait.until(EC.presence_of_element_located((By.NAME, "AccountID"))).send_keys("yang.di")
+    driver.find_element(By.NAME, "PassWord").send_keys("foxdie789")
+    driver.find_element(By.NAME, "login_SubmitBtn").click()
 
-    # 切換至 iframe
-    wait.until(EC.frame_to_be_available_and_switch_to_it((By.NAME, "iframe")))
+    # 點擊內部系統
+    wait.until(EC.element_to_be_clickable((By.XPATH, '//td[text()="內部系統"]'))).click()
+    time.sleep(1)
+    wait.until(EC.element_to_be_clickable((By.XPATH, '//td[contains(text(),"EIP 分析系統")]'))).click()
+    time.sleep(3)
 
-    # 回到主框架並點擊選單
+    # 切換到新開視窗
+    driver.switch_to.window(driver.window_handles[-1])
+    wait.until(EC.title_contains("台芝技術服務分析系統"))
+
+    ### === POS服務工作統計表 === ###
     driver.switch_to.default_content()
     wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "服務資料查詢"))).click()
     time.sleep(1)
     wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "POS服務工作統計表"))).click()
-
-    # 回到 iframe
     driver.switch_to.frame("iframe")
     time.sleep(2)
 
-    # 選擇「萊爾富」
+    # 選擇「客戶：萊爾富」
     customer_field = wait.until(EC.element_to_be_clickable((By.NAME, "customer")))
     customer_field.click()
     time.sleep(0.5)
@@ -62,35 +68,77 @@ try:
     dept_option = wait.until(EC.element_to_be_clickable((By.XPATH, '//select[@name="dept_id"]/option[contains(text(),"新北勤務一部")]')))
     dept_option.click()
 
-    # 按下查詢
+    # 查詢並匯出
     driver.find_element(By.XPATH, '//input[@type="submit" and @value="查詢"]').click()
-
-    # 等待匯出按鈕
     wait.until(EC.presence_of_element_located((By.XPATH, '//input[@type="submit" and @value="匯出成EXCEL"]')))
 
-    # 刪除本月相關舊檔案
-    for f in glob.glob(pattern):
+    # 刪除舊檔案
+    for f in glob.glob(pos_pattern):
         os.remove(f)
 
-    # 點擊匯出
     driver.find_element(By.XPATH, '//input[@type="submit" and @value="匯出成EXCEL"]').click()
 
     # 等待下載完成
-    max_wait = 20
-    downloaded_file = None
-    for _ in range(max_wait):
-        files = glob.glob(pattern)
+    downloaded_pos = None
+    for _ in range(30):
+        files = glob.glob(pos_pattern)
         if files:
-            downloaded_file = max(files, key=os.path.getctime)
+            downloaded_pos = max(files, key=os.path.getctime)
             break
         time.sleep(1)
 
-    driver.quit()
-
-    if downloaded_file and os.path.exists(downloaded_file):
-        print(f"✅ 下載完成：{os.path.basename(downloaded_file)}")
+    if downloaded_pos and os.path.exists(downloaded_pos):
+        shutil.move(downloaded_pos, pos_final)
+        print(f"✅ POS報表下載完成：{os.path.basename(pos_final)}")
     else:
-        print("❌ 錯誤：未找到下載的檔案。")
+        print("❌ POS報表未下載完成")
+
+    # 點擊「回到上一頁」
+    back_btn = wait.until(EC.element_to_be_clickable((By.ID, "back")))
+    back_btn.click()
+    time.sleep(2)  # 等待頁面載入
+
+    ### === MFP服務工作統計表 === ###
+    driver.switch_to.default_content()
+    wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "服務資料查詢"))).click()
+    time.sleep(1)
+    wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "MFP服務工作統計表"))).click()
+    driver.switch_to.frame("iframe")
+    time.sleep(2)
+
+    # 選擇「新北勤務一部」
+    dept_field = wait.until(EC.element_to_be_clickable((By.NAME, "dept_id")))
+    dept_field.click()
+    time.sleep(0.5)
+    dept_option = wait.until(EC.element_to_be_clickable((By.XPATH, '//select[@name="dept_id"]/option[contains(text(),"新北勤務一部")]')))
+    dept_option.click()
+
+    # 查詢並匯出
+    driver.find_element(By.XPATH, '//input[@type="submit" and @value="查詢"]').click()
+    wait.until(EC.presence_of_element_located((By.XPATH, '//input[@type="submit" and @value="匯出成EXCEL"]')))
+
+    # 刪除舊檔案
+    for f in glob.glob(mfp_pattern):
+        os.remove(f)
+
+    driver.find_element(By.XPATH, '//input[@type="submit" and @value="匯出成EXCEL"]').click()
+
+    # 等待下載完成
+    downloaded_mfp = None
+    for _ in range(30):
+        files = glob.glob(mfp_pattern)
+        if files:
+            downloaded_mfp = max(files, key=os.path.getctime)
+            break
+        time.sleep(1)
+
+    if downloaded_mfp and os.path.exists(downloaded_mfp):
+        shutil.move(downloaded_mfp, mfp_final)
+        print(f"✅ MFP報表下載完成：{os.path.basename(mfp_final)}")
+    else:
+        print("❌ MFP報表未下載完成")
+
+    driver.quit()
 
 except Exception as e:
     print(f"❌ 發生錯誤：{e}")

@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 import os
 import time
 import shutil
@@ -54,31 +55,41 @@ try:
     driver.switch_to.frame("iframe")
     time.sleep(2)
 
-    # 選擇「客戶：萊爾富」
-    customer_field = wait.until(EC.element_to_be_clickable((By.NAME, "customer")))
-    customer_field.click()
-    time.sleep(0.5)
-    customer_option = wait.until(EC.element_to_be_clickable((By.XPATH, '//select[@name="customer"]/option[contains(text(),"萊爾富")]')))
-    customer_option.click()
+    for attempt in range(2):
+        try:
+            customer_field = wait.until(EC.element_to_be_clickable((By.NAME, "customer")))
+            customer_field.click()
+            time.sleep(0.5)
+            customer_option = wait.until(EC.element_to_be_clickable(
+                (By.XPATH, '//select[@name="customer"]/option[contains(text(),"萊爾富")]')))
+            customer_option.click()
 
-    # 選擇「新北勤務一部」
-    dept_field = wait.until(EC.element_to_be_clickable((By.NAME, "dept_id")))
-    dept_field.click()
-    time.sleep(0.5)
-    dept_option = wait.until(EC.element_to_be_clickable((By.XPATH, '//select[@name="dept_id"]/option[contains(text(),"新北勤務一部")]')))
-    dept_option.click()
+            dept_field = wait.until(EC.element_to_be_clickable((By.NAME, "dept_id")))
+            dept_field.click()
+            time.sleep(0.5)
+            dept_option = wait.until(EC.element_to_be_clickable(
+                (By.XPATH, '//select[@name="dept_id"]/option[contains(text(),"新北勤務一部")]')))
+            dept_option.click()
+            break
+        except TimeoutException:
+            if attempt == 0:
+                print("⚠️ POS: 找不到 customer 或 dept_id，重新整理頁面...")
+                driver.refresh()
+                time.sleep(5)
+                driver.switch_to.frame("iframe")
+            else:
+                print("❌ POS: 找不到 customer 或 dept_id，流程中止。")
+                raise
 
     # 查詢並匯出
     driver.find_element(By.XPATH, '//input[@type="submit" and @value="查詢"]').click()
     wait.until(EC.presence_of_element_located((By.XPATH, '//input[@type="submit" and @value="匯出成EXCEL"]')))
 
-    # 刪除舊檔案
     for f in glob.glob(pos_pattern):
         os.remove(f)
 
     driver.find_element(By.XPATH, '//input[@type="submit" and @value="匯出成EXCEL"]').click()
 
-    # 等待下載完成
     downloaded_pos = None
     for _ in range(30):
         files = glob.glob(pos_pattern)
@@ -93,10 +104,10 @@ try:
     else:
         print("❌ POS報表未下載完成")
 
-    # 點擊「回到上一頁」
+    # 回上頁
     back_btn = wait.until(EC.element_to_be_clickable((By.ID, "back")))
     back_btn.click()
-    time.sleep(2)  # 等待頁面載入
+    time.sleep(2)
 
     ### === MFP服務工作統計表 === ###
     driver.switch_to.default_content()
@@ -106,24 +117,33 @@ try:
     driver.switch_to.frame("iframe")
     time.sleep(2)
 
-    # 選擇「新北勤務一部」
-    dept_field = wait.until(EC.element_to_be_clickable((By.NAME, "dept_id")))
-    dept_field.click()
-    time.sleep(0.5)
-    dept_option = wait.until(EC.element_to_be_clickable((By.XPATH, '//select[@name="dept_id"]/option[contains(text(),"新北勤務一部")]')))
-    dept_option.click()
+    for attempt in range(2):
+        try:
+            dept_field = wait.until(EC.element_to_be_clickable((By.NAME, "dept_id")))
+            dept_field.click()
+            time.sleep(0.5)
+            dept_option = wait.until(EC.element_to_be_clickable(
+                (By.XPATH, '//select[@name="dept_id"]/option[contains(text(),"新北勤務一部")]')))
+            dept_option.click()
+            break
+        except TimeoutException:
+            if attempt == 0:
+                print("⚠️ MFP: 找不到 dept_id，重新整理頁面...")
+                driver.refresh()
+                time.sleep(5)
+                driver.switch_to.frame("iframe")
+            else:
+                print("❌ MFP: 找不到 dept_id，流程中止。")
+                raise
 
-    # 查詢並匯出
     driver.find_element(By.XPATH, '//input[@type="submit" and @value="查詢"]').click()
     wait.until(EC.presence_of_element_located((By.XPATH, '//input[@type="submit" and @value="匯出成EXCEL"]')))
 
-    # 刪除舊檔案
     for f in glob.glob(mfp_pattern):
         os.remove(f)
 
     driver.find_element(By.XPATH, '//input[@type="submit" and @value="匯出成EXCEL"]').click()
 
-    # 等待下載完成
     downloaded_mfp = None
     for _ in range(30):
         files = glob.glob(mfp_pattern)
