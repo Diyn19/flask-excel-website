@@ -42,18 +42,24 @@ echo [6/6] 啟動 save_excel.exe...
 start /wait "" "save_excel.exe"
 if errorlevel 1 goto error
 
-:: 接著執行 Git 操作
+:: 執行 Git 操作
 goto git_operation
 
 :git_only
 :: 輸入版本號（即使只執行 Git 也要輸入）
 set /p vernum=請輸入版本號（將寫入 Excel 並作為 Git 訊息）：
 
-echo [1/2] 寫入版本號 %vernum% 到 Excel...
+echo [1/3] 寫入版本號 %vernum% 到 Excel...
 python "add_ver.py" %vernum%
 if errorlevel 1 goto error
 
+echo [2/3] 儲存 Excel（save_excel.exe）...
+start /wait "" "save_excel.exe"
+if errorlevel 1 goto error
+
 :: 執行 Git 操作
+goto git_operation
+
 :git_operation
 echo [Git] 進行 Git 操作...
 cd /d D:\flask
