@@ -3,13 +3,13 @@ setlocal enabledelayedexpansion
 
 cd /d D:\flask
 
-:: 新增功能：詢問是否直接開始 Git 操作
+:: === 功能 1：是否直接開始 Git 操作 ===
 set /p skipAll=是否直接開始 Git 操作 [Y/N]：
 if /i "!skipAll!"=="Y" (
     goto git_only
 )
 
-:: 原本詢問是否跳過下載檔案
+:: === 功能 2：是否跳過下載 ===
 set /p skipDownload=是否跳過下載檔案 [Y/N]：
 
 if /i "!skipDownload!"=="Y" (
@@ -28,8 +28,12 @@ echo [3/6] 執行 run_MFP_update.py...
 python "run_MFP_update.py"
 if errorlevel 1 goto error
 
-:: 第 4 步：輸入版本號並寫入 Excel
-set /p vernum=請輸入版本號：
+:: === 功能 3：輸入版本號（可按 Enter 產生預設） ===
+set /p vernum=請輸入版本號（按 Enter 以使用預設 mmddhhmm）： 
+if "!vernum!"=="" (
+    for /f %%i in ('powershell -command "Get-Date -Format \"MMddHHmm\""') do set vernum=%%i
+)
+
 echo [4/6] 寫入版本號 %vernum% 到 Excel...
 python "add_ver.py" %vernum%
 if errorlevel 1 goto error
@@ -42,12 +46,15 @@ echo [6/6] 啟動 save_excel.exe...
 start /wait "" "save_excel.exe"
 if errorlevel 1 goto error
 
-:: 執行 Git 操作
+:: === 功能 4：Git 操作 ===
 goto git_operation
 
 :git_only
-:: 輸入版本號（即使只執行 Git 也要輸入）
-set /p vernum=請輸入版本號（將寫入 Excel 並作為 Git 訊息）：
+:: === 只執行 Git 操作時也需要輸入版本號 ===
+set /p vernum=請輸入版本號（將寫入 Excel 並作為 Git 訊息，Enter 產生 mmddhhmm）： 
+if "!vernum!"=="" (
+    for /f %%i in ('powershell -command "Get-Date -Format \"MMddHHmm\""') do set vernum=%%i
+)
 
 echo [1/3] 寫入版本號 %vernum% 到 Excel...
 python "add_ver.py" %vernum%
@@ -57,9 +64,7 @@ echo [2/3] 儲存 Excel（save_excel.exe）...
 start /wait "" "save_excel.exe"
 if errorlevel 1 goto error
 
-:: 執行 Git 操作
-goto git_operation
-
+:: === Git 操作 ===
 :git_operation
 echo [Git] 進行 Git 操作...
 cd /d D:\flask
