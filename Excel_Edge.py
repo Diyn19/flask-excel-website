@@ -57,34 +57,40 @@ try:
 
     for attempt in range(2):
         try:
-            customer_field = wait.until(EC.element_to_be_clickable((By.NAME, "customer")))
-            customer_field.click()
-            time.sleep(0.5)
+            # 直接找有文字「萊爾富」的 option，並點擊
             customer_option = wait.until(EC.element_to_be_clickable(
-                (By.XPATH, '//select[@name="customer"]/option[contains(text(),"萊爾富")]')))
+                (By.XPATH, '//option[contains(text(),"萊爾富")]')))
             customer_option.click()
-
-            dept_field = wait.until(EC.element_to_be_clickable((By.NAME, "dept_id")))
-            dept_field.click()
             time.sleep(0.5)
+
+            # 直接找有文字「新北勤務一部」的 option，並點擊
             dept_option = wait.until(EC.element_to_be_clickable(
-                (By.XPATH, '//select[@name="dept_id"]/option[contains(text(),"新北勤務一部")]')))
+                (By.XPATH, '//option[contains(text(),"新北勤務一部")]')))
             dept_option.click()
             break
         except TimeoutException:
             if attempt == 0:
-                print("⚠️ POS: 找不到 customer 或 dept_id，重新整理頁面...")
+                print("⚠️ POS: 找不到『萊爾富』或『新北勤務一部』，重新整理並重新載入頁面...")
                 driver.refresh()
                 time.sleep(5)
+
+                # 重新點選 POS 服務報表路徑
+                wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "服務資料查詢"))).click()
+                time.sleep(1)
+                wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "POS服務工作統計表"))).click()
+                time.sleep(2)
                 driver.switch_to.frame("iframe")
             else:
-                print("❌ POS: 找不到 customer 或 dept_id，流程中止。")
+                print("❌ POS: 第二次仍找不到『萊爾富』或『新北勤務一部』，流程中止。")
                 raise
+
+
 
     # 查詢並匯出
     driver.find_element(By.XPATH, '//input[@type="submit" and @value="查詢"]').click()
     wait.until(EC.presence_of_element_located((By.XPATH, '//input[@type="submit" and @value="匯出成EXCEL"]')))
 
+    # 刪除舊檔
     for f in glob.glob(pos_pattern):
         os.remove(f)
 
@@ -119,26 +125,31 @@ try:
 
     for attempt in range(2):
         try:
-            dept_field = wait.until(EC.element_to_be_clickable((By.NAME, "dept_id")))
-            dept_field.click()
-            time.sleep(0.5)
             dept_option = wait.until(EC.element_to_be_clickable(
-                (By.XPATH, '//select[@name="dept_id"]/option[contains(text(),"新北勤務一部")]')))
+                (By.XPATH, '//option[contains(text(),"新北勤務一部")]')))
             dept_option.click()
             break
         except TimeoutException:
             if attempt == 0:
-                print("⚠️ MFP: 找不到 dept_id，重新整理頁面...")
+                print("⚠️ MFP: 找不到『新北勤務一部』，重新整理並重新載入頁面...")
                 driver.refresh()
                 time.sleep(5)
+
+                # 重新點選 MFP 服務報表路徑
+                wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "服務資料查詢"))).click()
+                time.sleep(1)
+                wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "MFP服務工作統計表"))).click()
+                time.sleep(2)
                 driver.switch_to.frame("iframe")
             else:
-                print("❌ MFP: 找不到 dept_id，流程中止。")
+                print("❌ MFP: 第二次仍找不到『新北勤務一部』，流程中止。")
                 raise
+
 
     driver.find_element(By.XPATH, '//input[@type="submit" and @value="查詢"]').click()
     wait.until(EC.presence_of_element_located((By.XPATH, '//input[@type="submit" and @value="匯出成EXCEL"]')))
 
+    # 刪除舊檔
     for f in glob.glob(mfp_pattern):
         os.remove(f)
 
