@@ -14,14 +14,14 @@
             border: 1px solid #ccc;
             margin: 5px;
         }
-		.custom-row-4 {
-			border-top: 3px solid black;  /* 粗黑上框線 */
-			color: black;                 /* 文字黑色 */
-			font-weight: bold;            /* 如果想要字體加粗可以加 */
-		}
-		.custom-row-4 td {
-			color: black;                 /* 確保所有欄位文字都黑色 */
-		}		
+        .custom-row-4 {
+            border-top: 3px solid black;
+            color: black;
+            font-weight: bold;
+        }
+        .custom-row-4 td {
+            color: black;
+        }
         button {
             padding: 10px 15px;
             margin: 5px;
@@ -61,17 +61,10 @@
             font-weight: bold;
             border-top: 2px solid black;
         }
-        .status-pm {
-            background-color: red;
-            color: white;
-        }
-        .status-replaced {
-            color: green;
-        }
-        .status-not-replaced {
-            color: red;
-        }
-        .status-repair { 
+        .status-pm { background-color: red; color: white; }
+        .status-replaced { color: green; }
+        .status-not-replaced { color: red; }
+        .status-repair {
             color: black;
             font-weight: bold;
             background-color: #d8ecff;
@@ -94,10 +87,7 @@
         #backToTop:hover {
             background-color: #0056b3;
         }
-        .workcheck-star {
-            color: red;
-            font-weight: bold;
-        }
+        .workcheck-star { color: red; font-weight: bold; }
         .workcheck-repair {
             color: black;
             font-weight: bold;
@@ -108,10 +98,22 @@
             font-weight: bold;
             background-color: #d8ecff;
         }
-        .workcheck-edc {
-            color: red;
-            font-weight: bold;
+        .workcheck-edc { color: red; font-weight: bold; }
+        .version-info {
+            text-align: center;
+            color: gray;
+            font-size: 14px;
+            margin-top: -25px;
+            margin-bottom: 20px;
         }
+		.link-button {
+			background-color: #FFA500;
+			padding: 6px 12px;
+			text-decoration: none;
+			border-radius: 4px;
+    		color: black;
+			font-weight: bold;
+		}
     </style>
 </head>
 <body>
@@ -121,6 +123,15 @@
         {% else %} PMQ3 門市資料查詢
         {% endif %}
     </h1>
+
+		{% if version %}
+	<div class="version-info">版本：{{ version }}</div>
+	<div style="text-align: center; margin-top: 8px;margin-bottom: 8px;">
+		<a href="https://bot.toshibatec.com.tw/hl0800/showjob31.php" target="_blank" rel="noopener noreferrer" class="link-button">[報修刊版]</a>
+		&nbsp;&nbsp;|&nbsp;&nbsp;
+		<a href="https://imainte.toshibatec.com.tw/i_mainte_center2/login.cfm?CFID=258322&CFTOKEN=f58548bc0ee07d0d-A0165FB1-FFC4-BBD8-DC3EBB80DDEA857B" target="_blank" rel="noopener noreferrer" class="link-button">[iMainte]</a>
+	</div>
+{% endif %}
 
     <form method="get">
         {% if not report_page %}
@@ -219,15 +230,19 @@
                 </thead>
                 <tbody>
                     {% for row in tables %}
-                    <tr {% if row['PMQ3檢核'] == 'PM' %} class="highlight-row" {% endif %}>
+                    <tr {% if row['PMQ_檢核'] == 'PM' %} class="highlight-row" {% endif %}>
                         {% for key, value in row.items() %}
-                            {% if key == 'PMQ3檢核' and value == 'PM' %}
+                            {% if key == 'PMQ_檢核' and value == 'PM' %}
                                 <td class="status-pm">{{ value }}</td>
                             {% elif key == '專案檢核' and value == '已更換' %}
                                 <td class="status-replaced">{{ value }}</td>
                             {% elif key == '專案檢核' and value == '未更換' %}
                                 <td class="status-not-replaced">{{ value }}</td>
-                            {% elif key == '完工檢核' and value == '代號異常' %}
+                            {% elif key == '完工檢核' and value == 'PEP未完工' %}
+                                <td class="status-repair">{{ value }}</td>
+							{% elif key == '完工檢核' and value == 'TVV未完工' %}
+                                <td class="status-repair">{{ value }}</td>
+							{% elif key == '完工檢核' and value == 'EDC未完工' %}
                                 <td class="status-repair">{{ value }}</td>
                             {% else %}
                                 <td>{{ value }}</td>
@@ -305,11 +320,7 @@
                 </thead>
                 <tbody>
                     {% for row in tables %}
-                    <tr>
-                        {% for value in row.values() %}
-                            <td>{{ value }}</td>
-                        {% endfor %}
-                    </tr>
+                    <tr>{% for value in row.values() %}<td>{{ value }}</td>{% endfor %}</tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -339,8 +350,7 @@
             btn.style.display = 'none';
         }
     });
-</script>
-<script>
+
     const path = window.location.pathname;
     const encodedName = path.slice(1);
     const name = decodeURIComponent(encodedName);
