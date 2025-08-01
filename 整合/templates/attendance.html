@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8" />
+    <title>出勤統計</title>
+    <style>
+        body {
+            font-family: "Microsoft JhengHei", sans-serif;
+            padding: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        h1 {
+            margin-bottom: 20px;
+            font-weight: 700;
+            font-size: 28px;
+            text-align: center;
+        }
+        .version {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .section {
+            background: #fff;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            border-radius: 6px;
+            box-shadow: 0 0 6px rgb(0 0 0 / 0.1);
+            border: 1px solid #ddd;
+        }
+        .section-title {
+            font-weight: 600;
+            font-size: 18px;
+            color: #004080;
+            margin-bottom: 12px;
+            border-bottom: 2px solid #004080;
+            padding-bottom: 6px;
+        }
+        table.dataframe {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        table.dataframe th,
+        table.dataframe td {
+            border: 1px solid #ccc;
+            padding: 8px 10px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        table.dataframe th {
+            background-color: #007BFF;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+        table.dataframe tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+        table.dataframe tr:hover {
+            background-color: #e6f2ff;
+        }
+        .chart-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .chart-container img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ccc;
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            box-shadow: 0 0 6px rgb(0 0 0 / 0.1);
+        }
+    </style>
+</head>
+<body>
+
+<h1>出勤統計</h1>
+<div class="version">版本號：{{ version }}</div>
+
+<div class="section chart-container">
+    <div class="section-title">出勤時間曲線圖</div>
+    <img src="data:image/png;base64,{{ plot_url }}" alt="出勤時間曲線圖" />
+</div>
+
+<div class="section">
+    <div class="section-title">總計</div>
+    {{ summary_table|safe }}
+</div>
+
+<div class="section">
+    <div class="section-title">萊爾富 Hi_Life</div>
+    {{ detail_table_1|safe }}
+</div>
+
+<div class="section">
+    <div class="section-title">MFP&其他</div>
+    {{ detail_table_2|safe }}
+</div>
+
+<div class="section">
+    <div class="section-title">合併統計</div>
+    {{ detail_table_3|safe }}
+</div>
+
+</body>
+</html>
