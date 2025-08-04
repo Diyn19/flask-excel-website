@@ -1,3 +1,4 @@
+from matplotlib.font_manager import FontProperties
 from flask import Flask, render_template
 import pandas as pd
 import requests
