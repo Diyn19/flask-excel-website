@@ -13,8 +13,8 @@ from matplotlib import rcParams
 import matplotlib.font_manager as fm
 
 # 設定中文字體
-font_path = "./fonts/NotoSansCJKtc-Regular.otf"
-font_prop = FontProperties(fname=font_path)
+font_path = 'C:/Windows/Fonts/msjh.ttc'  # 微軟正黑體
+font_prop = fm.FontProperties(fname=font_path)
 rcParams['font.family'] = font_prop.get_name()
 
 app = Flask(__name__)
