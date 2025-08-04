@@ -36,6 +36,11 @@
             max-height: 600px;
             border: 1px solid #ccc;
         }
+		        }
+        .table-NOAUTO {
+            max-height: 600px;
+            border: 1px solid #ccc;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -110,11 +115,16 @@
 </head>
 <body>
     <h1>
-        {% if personal_page %} PMQ3 個人查詢
-        {% elif report_page %} 報修查詢
-        {% else %} PMQ3 門市資料查詢
-        {% endif %}
-    </h1>
+		{% if time_page %}
+			出勤時間統計
+		{% elif report_page %}
+			報修查詢
+		{% elif personal_page %}
+			PMQ3 個人查詢
+		{% else %}
+			PMQ3 門市資料查詢
+		{% endif %}
+	</h1>
 
 		{% if version %}
 	<div class="version-info">版本：{{ version }}</div>
@@ -154,13 +164,14 @@
 			<button>報修刊版</button></a>
 		<a href="https://imainte.toshibatec.com.tw/i_mainte_center2/login.cfm?CFID=258322&CFTOKEN=f58548bc0ee07d0d-A0165FB1-FFC4-BBD8-DC3EBB80DDEA857B" target="_blank" rel="noopener noreferrer">
 			<button>iMainte</button></a>
-		{% if personal_page or report_page %}
+		<a href="/time"><button>出勤時間統計</button></a>
+		{% if personal_page or report_page or time_page %}
 			<a href="/"><button style="background-color: #6c757d;">回首頁</button></a>
 		{% endif %}
 	</div>
 
 
-    {% if not personal_page and not report_page %}
+    {% if not personal_page and not report_page and not time_page %}
         <h2>部門數量</h2>
         <div class="table-container">
             <table>
@@ -318,6 +329,37 @@
             </table>
         </div>
     {% endif %}
+	
+	{% if time_page %}
+			<div class="table">
+				<h2 class="section-title">出勤時間曲線圖</h2>
+				<div style="text-align: center;">
+					<img src="data:image/png;base64,{{ plot_url }}" alt="出勤時間曲線圖" style="width: 1000px; height: auto;"/>
+				</div>
+			</div>
+
+			<div class="table">
+				<h2 class="section-title">總計</h2>
+				{{ summary_table|safe }}
+			</div>
+
+			<div class="table">
+				<h2 class="section-title">萊爾富 Hi_Life</h2>
+				{{ detail_table_1|safe }}
+			</div>
+
+			<div class="table">
+				<h2 class="section-title">MFP&其他</h2>
+				{{ detail_table_2|safe }}
+			</div>
+
+			<div class="table">
+				<h2 class="section-title">合併統計</h2>
+				{{ detail_table_3|safe }}
+			</div>
+		</div>  <!-- 🔧 關閉 table-container 的 div -->
+	{% endif %}
+
 
     <button id="backToTop" onclick="window.scrollTo({top: 0, behavior: 'smooth'});">回頂部</button>
 

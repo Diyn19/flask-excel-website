@@ -119,7 +119,7 @@ try:
     driver.switch_to.default_content()
     wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "服務資料查詢"))).click()
     time.sleep(1)
-    wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "MFP服務工作統計表"))).click()
+    wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "ALL服務工作統計表"))).click()
     driver.switch_to.frame("iframe")
     time.sleep(2)
 
@@ -138,7 +138,7 @@ try:
                 # 重新點選 MFP 服務報表路徑
                 wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "服務資料查詢"))).click()
                 time.sleep(1)
-                wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "MFP服務工作統計表"))).click()
+                wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "ALL服務工作統計表"))).click()
                 time.sleep(2)
                 driver.switch_to.frame("iframe")
             else:

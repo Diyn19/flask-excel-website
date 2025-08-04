@@ -331,10 +331,11 @@
     {% endif %}
 	
 	{% if time_page %}
-        <div class="table">
 			<div class="table">
 				<h2 class="section-title">出勤時間曲線圖</h2>
-				<img src="data:image/png;base64,{{ plot_url }}" alt="出勤時間曲線圖" style="width: 1000px; height: auto;"/>
+				<div style="text-align: center;">
+					<img src="data:image/png;base64,{{ plot_url }}" alt="出勤時間曲線圖" style="width: 1000px; height: auto;"/>
+				</div>
 			</div>
 
 			<div class="table">
