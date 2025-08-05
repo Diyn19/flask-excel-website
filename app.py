@@ -11,12 +11,12 @@ import matplotlib
 matplotlib.use('Agg')  # 非 GUI 模式
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
+rcParams['font.family'] = 'DejaVu Sans'
 import matplotlib.font_manager as fm
 
 # 設定中文字體
 font_path = "./fonts/NotoSansCJKtc-Regular.otf"
 font_prop = FontProperties(fname=font_path)
-rcParams['font.family'] = font_prop.get_name()
 
 app = Flask(__name__)
 
