@@ -222,12 +222,12 @@ def time():
     plt.close()
     
     def highlight_names(row):
-    colors = {
-        '狄澤洋': 'background-color: lightblue',
-        '湯家瑋': 'background-color: orange',
-        '吳宗鴻': 'background-color: lightgreen'
-    }
-    return [colors.get(cell, '') for cell in row]
+        colors = {
+            '狄澤洋': 'background-color: lightblue',
+            '湯家瑋': 'background-color: orange',
+            '吳宗鴻': 'background-color: lightgreen'
+        }
+        return [colors.get(cell, '') for cell in row]
 
     return render_template(
         'index.html',
