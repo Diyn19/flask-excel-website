@@ -111,6 +111,26 @@
             margin-top: -25px;
             margin-bottom: 20px;
         }
+		/* 特殊欄位背景色標記 */
+		.blue-bg { background-color: lightblue; }
+		.orange-bg { background-color: orange; }
+		.green-bg { background-color: lightgreen; }
+		/* 讓 style 表格寬度一致 */
+		.dataframe { width: 100% !important; border-collapse: collapse; }
+		.dataframe th, .dataframe td {
+			border: 1px solid #ccc;
+			padding: 10px;
+			text-align: center;
+			word-break: break-word;
+		}
+		.dataframe th {
+			background-color: #007BFF;
+			color: white;
+			position: sticky;
+			op: 0;
+			z-index: 1;
+		}
+
     </style>
 </head>
 <body>
@@ -340,7 +360,29 @@
 
 			<div class="table">
 				<h2 class="section-title">總計</h2>
-				{{ summary_table|safe }}
+				<table class="dataframe attendance-table">
+					<thead>
+						<tr>
+						{% for col in df_summary.columns %}
+						<th class="{% if col == '狄澤洋' %}blue-bg{% elif col == '湯家瑋' %}orange-bg{% elif col == '吳宗鴻' %}green-bg{% endif %}">
+							{{ col }}
+						</th>
+						{% endfor %}
+						</tr>
+					</thead>
+					<tbody>
+						{% for row in df_summary.values %}
+						<tr>
+						{% for idx, cell in enumerate(row) %}
+						{% set col = df_summary.columns[idx] %}
+						<td class="{% if col == '狄澤洋' %}blue-bg{% elif col == '湯家瑋' %}orange-bg{% elif col == '吳宗鴻' %}green-bg{% endif %}">
+							{{ cell }}
+						</td>
+						{% endfor %}
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
 			</div>
 
 			<div class="table">

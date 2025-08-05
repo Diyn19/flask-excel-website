@@ -220,25 +220,19 @@ def time():
     img.seek(0)
     plot_url = base64.b64encode(img.read()).decode('utf-8')
     plt.close()
-    
-    def highlight_names(row):
-        colors = {
-            '狄澤洋': 'background-color: lightblue',
-            '湯家瑋': 'background-color: orange',
-            '吳宗鴻': 'background-color: lightgreen'
-        }
-        return [colors.get(cell, '') for cell in row]
 
     return render_template(
         'index.html',
-        summary_table=df_summary.style.apply(highlight_names, axis=1).to_html(index=False, classes='dataframe'),
+        summary_table=df_summary.to_html(index=False, classes='dataframe'),
         detail_table_1=detail_1.to_html(index=False, classes='dataframe'),
         detail_table_2=detail_2.to_html(index=False, classes='dataframe'),
         detail_table_3=detail_3.to_html(index=False, classes='dataframe'),
         version=version,
         plot_url=plot_url,
+        df_summary=df_summary,
         time_page=True  # 這行很重要
     )
+    
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 10000))
     app.run(host='0.0.0.0', port=port)
