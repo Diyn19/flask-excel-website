@@ -212,7 +212,6 @@ def time():
     for i, y in enumerate(y_data):
         ax.plot(x, y, marker='o', label=names[i])
 
-    ax.legend()
     plt.xticks(rotation=45)
     plt.tight_layout()
 
@@ -232,6 +231,7 @@ def time():
         version=version,
         plot_url=plot_url,
         df_summary=df_summary,
+        enumerate=enumerate,
         time_page=True  # 這行很重要
     )
     
