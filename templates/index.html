@@ -264,14 +264,14 @@
         </div>
 		
 		<h2>
-            <button onclick="toggleSection('project1-content', event)" style="margin-right: 8px;">▶</button>
+            <button onclick="toggleSection('HUB-content', event)" style="margin-right: 8px;">▶</button>
             HUB異常檢查
         </h2>
-        <div id="project1-content" style="display: block;" class="table-container">
+        <div id="HUB-content" style="display: block;" class="table-container">
             <table>
                 <thead>
                     {% if HUB_table %}
-                    <tr>{% for key in HUBtable[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr>
+                    <tr>{% for key in HUB_table[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr>
                     {% endif %}
                 </thead>
                 <tbody>
