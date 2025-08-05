@@ -210,9 +210,6 @@ def time():
     for i, y in enumerate(y_data):
         ax.plot(x, y, marker='o', label=names[i])
 
-    ax.set_xlabel("時間")
-    ax.set_ylabel("出勤次數")
-    ax.set_title("出勤時間曲線圖")
     ax.legend()
     plt.xticks(rotation=45)
     plt.tight_layout()
@@ -223,10 +220,18 @@ def time():
     img.seek(0)
     plot_url = base64.b64encode(img.read()).decode('utf-8')
     plt.close()
+    
+    def highlight_names(row):
+    colors = {
+        '狄澤洋': 'background-color: lightblue',
+        '湯家瑋': 'background-color: orange',
+        '吳宗鴻': 'background-color: lightgreen'
+    }
+    return [colors.get(cell, '') for cell in row]
 
     return render_template(
         'index.html',
-        summary_table=df_summary.to_html(index=False, classes='dataframe'),
+        summary_table=df_summary.style.apply(highlight_names, axis=1).to_html(index=False, classes='dataframe'),
         detail_table_1=detail_1.to_html(index=False, classes='dataframe'),
         detail_table_2=detail_2.to_html(index=False, classes='dataframe'),
         detail_table_3=detail_3.to_html(index=False, classes='dataframe'),
