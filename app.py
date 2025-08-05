@@ -8,6 +8,8 @@ import os
 import io
 import base64
 import matplotlib
+matplotlib.rcParams['font.sans-serif'] = ['SimHei']  # 支援中文的字體（或 'Microsoft JhengHei'）
+matplotlib.rcParams['axes.unicode_minus'] = False    # 避免負號顯示錯誤
 matplotlib.use('Agg')  # 非 GUI 模式
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
