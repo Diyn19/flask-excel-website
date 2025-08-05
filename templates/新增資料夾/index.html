@@ -24,6 +24,7 @@
         }
         button {
             padding: 10px 15px;
+			font-size: 20px;
             margin: 5px;
             background-color: #007BFF;
             color: white;
@@ -31,8 +32,33 @@
             border-radius: 5px;
             cursor: pointer;
         }
+		button.button-1 {
+            padding: 10px 15px;
+			font-size: 20px;
+            margin: 5px;
+            background-color: #1A1A1A;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+		.button-row {
+			display: flex;
+			flex-wrap: wrap; /* 自動換行（必要時） */
+			justify-content: flex-start; /* 或 center, space-between 等看你需求 */
+			gap: 10px; /* 按鈕之間的間距 */
+		}
+		.button a,
+		.button-1 a {
+			text-decoration: none;
+		}
         .table-container {
             overflow-y: auto;
+            max-height: 600px;
+            border: 1px solid #ccc;
+        }
+		        }
+        .table-NOAUTO {
             max-height: 600px;
             border: 1px solid #ccc;
         }
@@ -106,15 +132,40 @@
             margin-top: -25px;
             margin-bottom: 20px;
         }
+		/* 特殊欄位背景色標記 */
+		.blue-bg { background-color: lightblue; }
+		.orange-bg { background-color: orange; }
+		.green-bg { background-color: lightgreen; }
+		/* 讓 style 表格寬度一致 */
+		.dataframe { width: 100% !important; border-collapse: collapse; }
+		.dataframe th, .dataframe td {
+			border: 1px solid #ccc;
+			padding: 10px;
+			text-align: center;
+			word-break: break-word;
+		}
+		.dataframe th {
+			background-color: #007BFF;
+			color: white;
+			position: sticky;
+			top: 0;
+			z-index: 1;
+		}
+
     </style>
 </head>
 <body>
     <h1>
-        {% if personal_page %} PMQ3 個人查詢
-        {% elif report_page %} 報修查詢
-        {% else %} PMQ3 門市資料查詢
-        {% endif %}
-    </h1>
+		{% if time_page %}
+			出勤時間統計
+		{% elif report_page %}
+			報修查詢
+		{% elif personal_page %}
+			PMQ3 個人查詢
+		{% else %}
+			PMQ3 門市資料查詢
+		{% endif %}
+	</h1>
 
 		{% if version %}
 	<div class="version-info">版本：{{ version }}</div>
@@ -140,27 +191,27 @@
         {% endif %}
         <button type="submit">搜尋</button>
     </form>
-
-    {% if no_data_found %}
-        <p style="color: red; text-align: center;">無此資料</p>
-    {% endif %}
-
-	<div class="buttons">
-		<a href="/吳宗鴻"><button>吳宗鴻</button></a>
-		<a href="/湯家瑋"><button>湯家瑋</button></a>
-		<a href="/狄澤洋"><button>狄澤洋</button></a>
-		<a href="/report"><button>報修查詢</button></a>
-		<a href="https://bot.toshibatec.com.tw/hl0800/showjob31.php" target="_blank" rel="noopener noreferrer">
-			<button>報修刊版</button></a>
-		<a href="https://imainte.toshibatec.com.tw/i_mainte_center2/login.cfm?CFID=258322&CFTOKEN=f58548bc0ee07d0d-A0165FB1-FFC4-BBD8-DC3EBB80DDEA857B" target="_blank" rel="noopener noreferrer">
-			<button>iMainte</button></a>
-		{% if personal_page or report_page %}
-			<a href="/"><button style="background-color: #6c757d;">回首頁</button></a>
-		{% endif %}
+	
+	<div class="button-row">
+		<div class="button">
+			<a href="/吳宗鴻"><button>吳宗鴻</button></a>
+			<a href="/湯家瑋"><button>湯家瑋</button></a>
+			<a href="/狄澤洋"><button>狄澤洋</button></a>
+		</div>
+		<div class="button-1">
+			<a href="/report"><button class="button-1">報修查詢</button></a>
+			<a href="https://bot.toshibatec.com.tw/hl0800/showjob31.php" target="_blank" rel="noopener noreferrer">
+				<button class="button-1">報修刊版</button></a>
+			<a href="https://imainte.toshibatec.com.tw/i_mainte_center2/login.cfm?CFID=258322&CFTOKEN=f58548bc0ee07d0d-A0165FB1-FFC4-BBD8-DC3EBB80DDEA857B" target="_blank" rel="noopener noreferrer">
+				<button class="button-1">iMainte</button></a>
+			<a href="/time"><button class="button-1">出勤時間統計</button></a>
+			{% if personal_page or report_page or time_page %}
+				<a href="/"><button class="button-1">回首頁</button></a>
+			{% endif %}
+		</div>
 	</div>
 
-
-    {% if not personal_page and not report_page %}
+    {% if not personal_page and not report_page and not time_page %}
         <h2>部門數量</h2>
         <div class="table-container">
             <table>
@@ -318,6 +369,61 @@
             </table>
         </div>
     {% endif %}
+	
+	{% if time_page %}
+	<div class="table">
+	  <h2 class="section-title">出勤時間曲線圖</h2>
+	  <div style="text-align: center;">
+		<img src="data:image/png;base64,{{ plot_url }}" alt="出勤時間曲線圖" style="width: 1000px; height: auto;"/>
+	  </div>
+	</div>
+
+	<div class="table">
+	  <h2 class="section-title">總計</h2>
+	  <table class="dataframe attendance-table">
+		<thead>
+		  <tr>
+		  {% for col in df_summary.columns %}
+			<th class="{% if col == '狄澤洋' %}blue-bg{% elif col == '湯家瑋' %}orange-bg{% elif col == '吳宗鴻' %}green-bg{% endif %}">
+			  {{ col }}
+			</th>
+		  {% endfor %}
+		  </tr>
+		</thead>
+		<tbody>
+		  {% for row in df_summary.values %}
+		  <tr>
+			{% for idx, cell in enumerate(row) %}
+			  {% set col = df_summary.columns[idx] %}
+			  <td class="{% if col == '狄澤洋' %}blue-bg{% elif col == '湯家瑋' %}orange-bg{% elif col == '吳宗鴻' %}green-bg{% endif %}">
+				{{ cell }}
+			  </td>
+			{% endfor %}
+		  </tr>
+		  {% endfor %}
+		</tbody>
+	  </table>
+	</div>
+
+	<div class="table">
+	  <h2 class="section-title">萊爾富 Hi_Life</h2>
+	  {{ detail_table_1|safe }}
+	</div>
+
+	<div class="table">
+	  <h2 class="section-title">MFP&其他</h2>
+	  {{ detail_table_2|safe }}
+	</div>
+
+	<div class="table">
+	  <h2 class="section-title">合併統計</h2>
+	  {{ detail_table_3|safe }}
+	</div>
+
+	</div>  <!-- 關閉 table-container 的 div -->
+	{% endif %}
+
+
 
     <button id="backToTop" onclick="window.scrollTo({top: 0, behavior: 'smooth'});">回頂部</button>
 

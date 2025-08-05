@@ -262,6 +262,25 @@
                 </tbody>
             </table>
         </div>
+		
+		<h2>
+            <button onclick="toggleSection('project1-content', event)" style="margin-right: 8px;">▶</button>
+            HUB異常檢查
+        </h2>
+        <div id="project1-content" style="display: block;" class="table-container">
+            <table>
+                <thead>
+                    {% if HUB_table %}
+                    <tr>{% for key in HUBtable[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr>
+                    {% endif %}
+                </thead>
+                <tbody>
+                    {% for row in HUB_table %}
+                    <tr>{% for value in row.values() %}<td>{{ value }}</td>{% endfor %}</tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
         <h2>門市資料</h2>
         <div class="table-container">

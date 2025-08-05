@@ -52,6 +52,35 @@ def clean_df(df):
     df.columns = df.columns.astype(str).str.replace('\n', '', regex=False)
     return df.fillna('')
 
+@app.route('/HUB')
+def HUB():
+    xls = load_excel_from_github(GITHUB_XLSX_URL)
+
+    df = clean_df(pd.read_excel(xls, sheet_name='首頁', header=20, nrows=30, usecols="A:C"))
+    df = df[['門市編號', '門市名稱', '異常原因']]
+
+    keyword = request.args.get('keyword', '').strip()
+    no_data_found = False
+    if keyword:
+        df = df[df.apply(lambda row: row.astype(str).str.contains(keyword, case=False).any(), axis=1)]
+        no_data_found = df.empty
+
+    return render_template(
+        'index.html',
+        tables=df.to_dict(orient='records'),
+        keyword=keyword,
+        store_id='',
+        repair_item='',
+        personal_page=False,
+        report_page=False,
+        department_table=df_department.to_dict(orient='records'),
+        seasons_table=df_seasons.to_dict(orient='records'),
+        project1_table=df_project1.to_dict(orient='records'),
+        HUB_table=df_HUB.to_dict(orient='records'),
+        no_data_found=no_data_found,
+        version=version_time
+    )
+
 @app.route('/')
 def index():
     xls = load_excel_from_github(GITHUB_XLSX_URL)
