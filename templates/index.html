@@ -14,14 +14,6 @@
             border: 1px solid #ccc;
             margin: 5px;
         }
-        .custom-row-4 {
-            border-top: 3px solid black;
-            color: black;
-            font-weight: bold;
-        }
-        .custom-row-4 td {
-            color: black;
-        }
         button {
             padding: 10px 15px;
 			font-size: 20px;
@@ -54,11 +46,6 @@
 		}
         .table-container {
             overflow-y: auto;
-            max-height: 600px;
-            border: 1px solid #ccc;
-        }
-		        }
-        .table-NOAUTO {
             max-height: 600px;
             border: 1px solid #ccc;
         }
@@ -113,18 +100,6 @@
         #backToTop:hover {
             background-color: #0056b3;
         }
-        .workcheck-star { color: red; font-weight: bold; }
-        .workcheck-repair {
-            color: black;
-            font-weight: bold;
-            background-color: #d8ecff;
-        }
-        .workcheck-hub {
-            color: black;
-            font-weight: bold;
-            background-color: #d8ecff;
-        }
-        .workcheck-edc { color: red; font-weight: bold; }
         .version-info {
             text-align: center;
             color: gray;
@@ -305,6 +280,8 @@
 							{% elif key == '完工檢核' and value == 'TVV未完工' %}
                                 <td class="status-repair">{{ value }}</td>
 							{% elif key == '完工檢核' and value == 'EDC未完工' %}
+                                <td class="status-repair">{{ value }}</td>
+							{% elif key == '完工檢核' and value == 'HUB未完工' %}
                                 <td class="status-repair">{{ value }}</td>
                             {% else %}
                                 <td>{{ value }}</td>

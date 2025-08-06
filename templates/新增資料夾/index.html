@@ -163,7 +163,7 @@
 		{% elif personal_page %}
 			PMQ3 個人查詢
 		{% else %}
-			PMQ3 門市資料查詢
+			PMQ3 部門總覽
 		{% endif %}
 	</h1>
 
@@ -257,6 +257,25 @@
                 </thead>
                 <tbody>
                     {% for row in project1_table %}
+                    <tr>{% for value in row.values() %}<td>{{ value }}</td>{% endfor %}</tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+		
+		<h2>
+            <button onclick="toggleSection('HUB-content', event)" style="margin-right: 8px;">▶</button>
+            HUB異常檢查
+        </h2>
+        <div id="HUB-content" style="display: none;" class="table-container">
+            <table>
+                <thead>
+                    {% if HUB_table %}
+                    <tr>{% for key in HUB_table[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr>
+                    {% endif %}
+                </thead>
+                <tbody>
+                    {% for row in HUB_table %}
                     <tr>{% for value in row.values() %}<td>{{ value }}</td>{% endfor %}</tr>
                     {% endfor %}
                 </tbody>
