@@ -102,7 +102,7 @@ def personal(name):
     df_top = clean_df(pd.read_excel(xls, sheet_name=sheet_name, usecols="A:G", nrows=4))
     df_top = df_top.applymap(lambda x: int(x) if isinstance(x, (int, float)) and x == int(x) else x)
 
-    df_project = clean_df(pd.read_excel(xls, sheet_name=sheet_name, usecols="H:L", nrows=3))
+    df_project = clean_df(pd.read_excel(xls, sheet_name=sheet_name, usecols="H:L", nrows=4))
     df_project = df_project.applymap(lambda x: int(x) if isinstance(x, (int, float)) and x == int(x) else x)
 
     df_bottom = clean_df(pd.read_excel(xls, sheet_name=sheet_name, usecols="A:J", skiprows=5))
