@@ -13,36 +13,41 @@ if /i "!skipAll!"=="Y" (
 set /p skipDownload=是否跳過下載檔案 [Y/N]：
 
 if /i "!skipDownload!"=="Y" (
-    echo [1/6] 已選擇跳過下載檔案。
+    echo [1/7] 已選擇跳過下載檔案。
 ) else (
-    echo [1/6] 執行 Excel_Edge.py...
+    echo [1/7] 執行 Excel_Edge.py...
     python "Excel_Edge.py"
     if errorlevel 1 goto error
 )
 
-echo [2/6] 執行 run_update2.py...
+:: 新增 [2/7] 複製 data.xlsx 到 臨時備份 資料夾
+echo [2/7] 複製 data.xlsx 到 臨時備份 資料夾...
+copy /Y "data.xlsx" "臨時備份\自動備份\data.xlsx"
+if errorlevel 1 goto error
+
+echo [3/7] 執行 run_update2.py...
 python "run_update2.py"
 if errorlevel 1 goto error
 
-echo [3/6] 執行 run_MFP_update.py...
+echo [4/7] 執行 run_MFP_update.py...
 python "run_MFP_update.py"
 if errorlevel 1 goto error
 
-:: 第 4 步：輸入版本號（允許直接 Enter 自動填入）
+:: 第 5 步：輸入版本號（允許直接 Enter 自動填入）
 set /p vernum=請輸入版本號（直接 Enter 則使用目前時間 mmddhhmm）：
 if "!vernum!"=="" (
     for /f %%a in ('powershell -command "Get-Date -Format MMddHHmm"') do set vernum=%%a
 )
 
-echo [4/6] 寫入版本號 %vernum% 到 Excel...
+echo [5/7] 寫入版本號 %vernum% 到 Excel...
 python "add_ver.py" %vernum%
 if errorlevel 1 goto error
 
-echo [5/6] 執行 data_updw.py...
+echo [6/7] 執行 data_updw.py...
 python "data_updw.py"
 if errorlevel 1 goto error
 
-echo [6/6] 啟動 save_excel.exe...
+echo [7/7] 啟動 save_excel.exe...
 start /wait "" "save_excel.exe"
 if errorlevel 1 goto error
 
