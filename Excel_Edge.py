@@ -55,36 +55,26 @@ try:
     driver.switch_to.frame("iframe")
     time.sleep(2)
 
-    for attempt in range(2):
-        try:
-            # 直接找有文字「萊爾富」的 option，並點擊
-            customer_option = wait.until(EC.element_to_be_clickable(
-                (By.XPATH, '//option[contains(text(),"萊爾富")]')))
-            customer_option.click()
-            time.sleep(0.5)
+    try:
+        # 檢查是否有 Warning: mysql
+        if "Warning: mysql" in driver.page_source:
+            print("❌ 偵測到 Warning: mysql，流程中止。")
+            raise Exception("Warning: mysql detected")
 
-            # 直接找有文字「新北勤務一部」的 option，並點擊
-            dept_option = wait.until(EC.element_to_be_clickable(
-                (By.XPATH, '//option[contains(text(),"新北勤務一部")]')))
-            dept_option.click()
-            break
-        except TimeoutException:
-            if attempt == 0:
-                print("⚠️ POS: 找不到『萊爾富』或『新北勤務一部』，重新整理並重新載入頁面...")
-                driver.refresh()
-                time.sleep(5)
+        # 嘗試點擊「萊爾富」
+        customer_option = wait.until(EC.element_to_be_clickable(
+            (By.XPATH, '//option[contains(text(),"萊爾富")]')))
+        customer_option.click()
+        time.sleep(0.5)
 
-                # 重新點選 POS 服務報表路徑
-                wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "服務資料查詢"))).click()
-                time.sleep(1)
-                wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "POS服務工作統計表"))).click()
-                time.sleep(2)
-                driver.switch_to.frame("iframe")
-            else:
-                print("❌ POS: 第二次仍找不到『萊爾富』或『新北勤務一部』，流程中止。")
-                raise
+        # 嘗試點擊「新北勤務一部」
+        dept_option = wait.until(EC.element_to_be_clickable(
+            (By.XPATH, '//option[contains(text(),"新北勤務一部")]')))
+        dept_option.click()
 
-
+    except TimeoutException:
+        print("❌ 找不到『萊爾富』或『新北勤務一部』，流程中止。")
+        raise
 
     # 查詢並匯出
     driver.find_element(By.XPATH, '//input[@type="submit" and @value="查詢"]').click()
@@ -123,28 +113,21 @@ try:
     driver.switch_to.frame("iframe")
     time.sleep(2)
 
-    for attempt in range(2):
-        try:
-            dept_option = wait.until(EC.element_to_be_clickable(
-                (By.XPATH, '//option[contains(text(),"新北勤務一部")]')))
-            dept_option.click()
-            break
-        except TimeoutException:
-            if attempt == 0:
-                print("⚠️ MFP: 找不到『新北勤務一部』，重新整理並重新載入頁面...")
-                driver.refresh()
-                time.sleep(5)
+    try:
+        # 檢查是否有 Warning: mysql
+        if "Warning: mysql" in driver.page_source:
+            print("❌ 偵測到 Warning: mysql，流程中止。")
+            raise Exception("Warning: mysql detected")
 
-                # 重新點選 MFP 服務報表路徑
-                wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "服務資料查詢"))).click()
-                time.sleep(1)
-                wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "勤務工作統計表"))).click()
-                time.sleep(2)
-                driver.switch_to.frame("iframe")
-            else:
-                print("❌ MFP: 第二次仍找不到『新北勤務一部』，流程中止。")
-                raise
+        # 嘗試點擊「新北勤務一部」
+        customer_option = wait.until(EC.element_to_be_clickable(
+            (By.XPATH, '//option[contains(text(),"新北勤務一部")]')))
+        customer_option.click()
+        time.sleep(0.5)
 
+    except TimeoutException:
+        print("❌『新北勤務一部』，流程中止。")
+        raise
 
     driver.find_element(By.XPATH, '//input[@type="submit" and @value="查詢"]').click()
     wait.until(EC.presence_of_element_located((By.XPATH, '//input[@type="submit" and @value="匯出成EXCEL"]')))
