@@ -10,7 +10,10 @@
     <h1>部門排程</h1>
 
     <div id="calendar"></div>
-
+	{% if personal_page or report_page or time_page or calendar_page %}
+		<a href="/"><button class="button-1">回首頁</button></a>
+	{% endif %}
+	
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             let calendarEl = document.getElementById('calendar');

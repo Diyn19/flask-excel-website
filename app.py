@@ -245,7 +245,7 @@ CALENDAR_SHEET = '行事曆'
 # 顯示排程表頁面
 @app.route('/calendar')
 def calendar_page():
-    return render_template('calendar.html')
+    return render_template('calendar.html', calendar_page=True)
 
 
 # 取得所有事件，供 FullCalendar 使用
