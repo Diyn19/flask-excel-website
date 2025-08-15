@@ -270,10 +270,15 @@ def get_calendar_events():
             except Exception as e:
                 print("日期格式錯誤:", date_val)
                 continue
-
+            color_map = {
+                "狄澤洋": "red",
+                "湯家瑋": "green",
+                "吳宗鴻": "orange"
+            }
             events.append({
                 "title": str(title_val),
                 "start": start_date,
+                "color": color_map.get(row['屬性'], "blue")
             })
 
     print(events)  # 🔹 確認事件是否正確生成
