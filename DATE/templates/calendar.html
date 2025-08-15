@@ -10,20 +10,21 @@
     <h1>部門排程</h1>
 
     <div id="calendar"></div>
-	{% if personal_page or report_page or time_page or calendar_page %}
-		<a href="/"><button class="button-1">回首頁</button></a>
-	{% endif %}
-	
+    {% if personal_page or report_page or time_page or calendar_page %}
+        <a href="/"><button class="button-1">回首頁</button></a>
+    {% endif %}
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             let calendarEl = document.getElementById('calendar');
 
             let calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
+                hiddenDays: [0, 6],  // 隱藏星期日(0)與星期六(6)
                 events: {
-					url: '/calendar/events',
-					method: 'GET'
-				}  // 從後端讀取事件
+                    url: '/calendar/events',
+                    method: 'GET'
+                }
             });
 
             calendar.render();
