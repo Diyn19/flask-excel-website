@@ -1,8 +1,24 @@
+from matplotlib.font_manager import FontProperties
+from flask import Flask, render_template
 import pandas as pd
 import requests
 from io import BytesIO
 from flask import Flask, render_template, request, abort
 import os
+import io
+import base64
+import matplotlib
+matplotlib.rcParams['font.sans-serif'] = ['SimHei']  # 支援中文的字體（或 'Microsoft JhengHei'）
+matplotlib.rcParams['axes.unicode_minus'] = False    # 避免負號顯示錯誤
+matplotlib.use('Agg')  # 非 GUI 模式
+import matplotlib.pyplot as plt
+from matplotlib import rcParams
+rcParams['font.family'] = 'DejaVu Sans'
+import matplotlib.font_manager as fm
+
+# 設定中文字體
+font_path = "./fonts/NotoSansCJKtc-Regular.otf"
+font_prop = FontProperties(fname=font_path)
 
 app = Flask(__name__)
 
@@ -43,6 +59,8 @@ def index():
     df_department = clean_df(pd.read_excel(xls, sheet_name='首頁', usecols="A:F", skiprows=4, nrows=1))
     df_seasons = clean_df(pd.read_excel(xls, sheet_name='首頁', usecols="A:D", skiprows=8, nrows=2))
     df_project1 = clean_df(pd.read_excel(xls, sheet_name='首頁', usecols="A:E", skiprows=12, nrows=3))
+    df_HUB = clean_df(pd.read_excel(xls, sheet_name='首頁', header=18, nrows=30, usecols="A:D"))
+    df_HUB = df_HUB[['門市編號', '門市名稱', '異常原因', '完工確認']]
     df = clean_df(pd.read_excel(xls, sheet_name=0, header=21, nrows=250, usecols="A:O"))
     df = df[['門市編號', '門市名稱', 'PMQ_檢核', '專案檢核', 'HUB', '完工檢核']]
 
@@ -63,6 +81,7 @@ def index():
         department_table=df_department.to_dict(orient='records'),
         seasons_table=df_seasons.to_dict(orient='records'),
         project1_table=df_project1.to_dict(orient='records'),
+        HUB_table=df_HUB.to_dict(orient='records'),
         no_data_found=no_data_found,
         version=version_time
     )
@@ -83,7 +102,7 @@ def personal(name):
     df_top = clean_df(pd.read_excel(xls, sheet_name=sheet_name, usecols="A:G", nrows=4))
     df_top = df_top.applymap(lambda x: int(x) if isinstance(x, (int, float)) and x == int(x) else x)
 
-    df_project = clean_df(pd.read_excel(xls, sheet_name=sheet_name, usecols="H:L", nrows=3))
+    df_project = clean_df(pd.read_excel(xls, sheet_name=sheet_name, usecols="H:L", nrows=4))
     df_project = df_project.applymap(lambda x: int(x) if isinstance(x, (int, float)) and x == int(x) else x)
 
     df_bottom = clean_df(pd.read_excel(xls, sheet_name=sheet_name, usecols="A:J", skiprows=5))
@@ -149,7 +168,76 @@ def report():
         no_data_found=no_data_found,
         version=version_time
     )
+    
+@app.route('/time')
+def time():
+    xls = load_excel_from_github(GITHUB_XLSX_URL)
 
+    # 讀取版本號
+    try:
+        version_df = pd.read_excel(xls, sheet_name='首頁', header=None, usecols="G", nrows=1)
+        version = version_df.iloc[0, 0]
+    except:
+        version = "無法讀取版本號"
+
+    # 讀取摘要與明細資料（保留你原本的）
+    df_summary = pd.read_excel(xls, sheet_name='出勤時間', usecols="A:E", nrows=2)
+    detail_1 = pd.read_excel(xls, sheet_name='出勤時間', usecols="A:Q", skiprows=3, nrows=3)
+    detail_2 = pd.read_excel(xls, sheet_name='出勤時間', usecols="A:Q", skiprows=7, nrows=3)
+    detail_3 = pd.read_excel(xls, sheet_name='出勤時間', usecols="A:Q", skiprows=11, nrows=3)
+
+    # 讀取曲線圖資料
+    # 時間軸：B12:P12 → index=11，col=1~15（0-based）
+    # 姓名：A13:A15 → index=12~14，col=0
+    # 出勤次數：B13:P15 → index=12~14，col=1~15
+
+    df_chart = pd.read_excel(xls, sheet_name='出勤時間', header=None)
+
+    # 取得時間軸字串
+    x = df_chart.iloc[11, 1:16].tolist()  # B12:P12 (Excel 1-based, DataFrame 0-based)
+    # 確認 x 是什麼格式，如果是數字（Excel 時間序列），轉成時間格式字串
+    if all(isinstance(v, (int, float)) for v in x):
+        # Excel 日期是從 1900-01-01 起算，時間是一天的小數部分
+        # 假設這裡是時間欄，直接用 pd.Timedelta 轉小時分鐘
+        x = [(pd.Timestamp("1900-01-01") + pd.Timedelta(hours=hour)).strftime("%H:%M") for hour in range(8, 23)]
+    else:
+        # 否則直接轉成字串（保險用）
+        x = [str(v) for v in x]
+
+    # 取得人員姓名
+    names = df_chart.iloc[12:15, 0].tolist()
+
+    # 取得次數資料，轉成 list of list，3 行×15 欄
+    y_data = df_chart.iloc[12:15, 1:16].values.tolist()
+
+    # 畫圖
+    fig, ax = plt.subplots(figsize=(10, 5))
+    for i, y in enumerate(y_data):
+        ax.plot(x, y, marker='o', label=names[i])
+
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+
+    # 圖片轉 base64
+    img = io.BytesIO()
+    plt.savefig(img, format='png')
+    img.seek(0)
+    plot_url = base64.b64encode(img.read()).decode('utf-8')
+    plt.close()
+
+    return render_template(
+        'index.html',
+        summary_table=df_summary.to_html(index=False, classes='dataframe'),
+        detail_table_1=detail_1.to_html(index=False, classes='dataframe'),
+        detail_table_2=detail_2.to_html(index=False, classes='dataframe'),
+        detail_table_3=detail_3.to_html(index=False, classes='dataframe'),
+        version=version,
+        plot_url=plot_url,
+        df_summary=df_summary,
+        enumerate=enumerate,
+        time_page=True  # 這行很重要
+    )
+    
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 10000))
     app.run(host='0.0.0.0', port=port)

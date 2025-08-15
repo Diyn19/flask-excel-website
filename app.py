@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 from matplotlib import rcParams
 rcParams['font.family'] = 'DejaVu Sans'
 import matplotlib.font_manager as fm
+from flask import Flask, render_template, request, jsonify
 
 # 設定中文字體
 font_path = "./fonts/NotoSansCJKtc-Regular.otf"
@@ -238,6 +239,48 @@ def time():
         time_page=True  # 這行很重要
     )
     
+CALENDAR_FILE = 'data.xlsx'
+CALENDAR_SHEET = '行事曆'
+
+# 顯示排程表頁面
+@app.route('/calendar')
+def calendar_page():
+    return render_template('calendar.html')
+
+
+# 取得所有事件，供 FullCalendar 使用
+@app.route('/calendar/events')
+def get_calendar_events():
+    try:
+        df = pd.read_excel('data.xlsx', sheet_name='行事曆')
+    except FileNotFoundError:
+        return jsonify([])
+
+    # 移除欄位前後空格
+    df.columns = df.columns.str.strip()
+
+    events = []
+    for _, row in df.iterrows():
+        date_val = row.get('date')
+        title_val = row.get('title', '')
+        
+        if pd.notna(date_val) and title_val:
+            try:
+                start_date = pd.to_datetime(date_val).strftime('%Y-%m-%d')
+            except Exception as e:
+                print("日期格式錯誤:", date_val)
+                continue
+
+            events.append({
+                "title": str(title_val),
+                "start": start_date,
+            })
+
+    print(events)  # 🔹 確認事件是否正確生成
+    return jsonify(events)
+
+# ====== 月曆功能整合結束 ======
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 10000))
     app.run(host='0.0.0.0', port=port)
