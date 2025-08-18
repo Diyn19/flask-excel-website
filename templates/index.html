@@ -137,6 +137,8 @@
 			報修查詢
 		{% elif personal_page %}
 			PMQ3 個人查詢
+		{% elif calendar_page %}
+			部門排程
 		{% else %}
 			PMQ3 部門總覽
 		{% endif %}
@@ -147,7 +149,7 @@
 {% endif %}
 
     <form method="get">
-        {% if not report_page %}
+        {% if not report_page and not calendar_page and not time_page %}
             <input type="text" name="keyword" placeholder="請輸入關鍵字查詢" value="{{ keyword }}">
         {% endif %}
         {% if report_page %}
@@ -164,7 +166,9 @@
                 {% endfor %}
             </select>
         {% endif %}
+		{% if not calendar_page and not time_page %}
         <button type="submit">搜尋</button>
+		{% endif %}
     </form>
 	
 	<div class="button-row">
@@ -183,13 +187,13 @@
 				<button class="button-1">EIP</button></a>
 			<a href="/time"><button class="button-1">出勤時間統計</button></a>
 			<a href="/calendar"><button class="button-1">排程表</button></a>
-			{% if personal_page or report_page or time_page %}
+			{% if personal_page or report_page or time_page or calendar_page %}
 				<a href="/"><button class="button-1">回首頁</button></a>
 			{% endif %}
 		</div>
 	</div>
 
-    {% if not personal_page and not report_page and not time_page %}
+    {% if not personal_page and not report_page and not time_page and not calendar_page %}
         <h2>部門數量</h2>
         <div class="table-container">
             <table>
@@ -422,9 +426,35 @@
 	</div>  <!-- 關閉 table-container 的 div -->
 	{% endif %}
 
+{% if calendar_page %}
+<div class="table">
+    <h2 class="calendar">部門排程</h2>
 
+    <!-- FullCalendar CSS & JS -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
 
+    <div id="calendar"></div>
     <button id="backToTop" onclick="window.scrollTo({top: 0, behavior: 'smooth'});">回頂部</button>
+</div>
+{% endif %}
+<script>
+        document.addEventListener('DOMContentLoaded', function () {
+            let calendarEl = document.getElementById('calendar');
+
+			let calendar = new FullCalendar.Calendar(calendarEl, {
+				initialView: 'dayGridMonth',
+				weekends: false,  // 不顯示六日
+				hiddenDays: [0, 6],
+				events: {
+					url: '/calendar/events',
+					method: 'GET'
+				}
+			});
+
+            calendar.render();
+        });
+</script>
 
 <script>
     function toggleSection(id, event) {
@@ -455,6 +485,7 @@
         const titleEl = document.getElementById('season-title');
         titleEl.textContent = name + ' - 季保養進度';
     }
+	
 </script>
 </body>
 </html>
