@@ -431,30 +431,83 @@
     <h2 class="calendar">部門排程</h2>
 
     <!-- FullCalendar CSS & JS -->
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+	<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+	<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
 
-    <div id="calendar"></div>
-    <button id="backToTop" onclick="window.scrollTo({top: 0, behavior: 'smooth'});">回頂部</button>
-</div>
-{% endif %}
-<script>
-        document.addEventListener('DOMContentLoaded', function () {
-            let calendarEl = document.getElementById('calendar');
+	<style>
+	  /* 允許事件標題/時間換行，移除省略號 */
+	  .fc .fc-event-title, 
+	  .fc .fc-event-time, 
+	  .fc .fc-event-main {
+		white-space: normal !important;
+		overflow: visible !important;
+		text-overflow: clip !important;
+	  }
 
-			let calendar = new FullCalendar.Calendar(calendarEl, {
-				initialView: 'dayGridMonth',
-				weekends: false,  // 不顯示六日
-				hiddenDays: [0, 6],
-				events: {
-					url: '/calendar/events',
-					method: 'GET'
-				}
-			});
+	  /* 月曆 (dayGrid) 兩種事件外觀都一併處理 */
+	  .fc .fc-daygrid-event, 
+	  .fc .fc-daygrid-dot-event {
+		white-space: normal !important;
+	  }
 
-            calendar.render();
-        });
-</script>
+	  /* 長字串（如沒有空白的編號/網址）也要能斷行 */
+	  .fc .fc-daygrid-event .fc-event-title,
+	  .fc .fc-daygrid-dot-event .fc-event-title,
+	  .fc .fc-timegrid-event .fc-event-title {
+		overflow-wrap: anywhere;   /* 新版瀏覽器 */
+		word-break: break-word;    /* 相容性備援 */
+	  }
+
+	  /* 可選：讓事件卡片更像「方塊」，有時更好閱讀 */
+	  .fc .fc-daygrid-event {
+		display: block;            
+		padding: 2px 4px;          
+	  }
+
+	  /* ===== 固定每日格子高度 ===== */
+	  .fc .fc-daygrid-day-frame {
+		height: 160px !important;     /* 固定高度 */
+		overflow-y: auto !important;  /* 超出時出現捲軸 */
+	  }
+
+	  /* 避免 flex 撐高 */
+	  .fc .fc-daygrid-day {
+		flex: 0 0 auto !important;
+	  }
+	</style>
+
+	<div id="calendar"></div>
+	<button id="backToTop" onclick="window.scrollTo({top: 0, behavior: 'smooth'});">回頂部</button>
+	</div>
+	{% endif %}
+
+	<script>
+	document.addEventListener('DOMContentLoaded', function () {
+		let calendarEl = document.getElementById('calendar');
+
+		let calendar = new FullCalendar.Calendar(calendarEl, {
+			initialView: 'dayGridMonth',
+			weekends: false,  // 不顯示六日
+			hiddenDays: [0, 6],
+			events: {
+				url: '/calendar/events',
+				method: 'GET'
+			},
+			eventDisplay: 'block',
+
+			// 只保留日期數字，避免被內容撐開
+			dayCellContent: function(arg) { return arg.dayNumberText; }, 
+
+			height: 'auto',       // 整體自動
+			contentHeight: 'auto',
+			dayMaxEventRows: false,
+			aspectRatio: 1.35
+		});
+
+		calendar.render();
+	});
+	</script>
+
 
 <script>
     function toggleSection(id, event) {
