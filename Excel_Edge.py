@@ -45,6 +45,7 @@ try:
 
     # 切換到新開視窗
     driver.switch_to.window(driver.window_handles[-1])
+    driver.refresh()
     wait.until(EC.title_contains("台芝技術服務分析系統"))
 
     ### === POS服務工作統計表 === ###
