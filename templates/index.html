@@ -49,6 +49,11 @@
             max-height: 600px;
             border: 1px solid #ccc;
         }
+		.table-container-NO {
+            overflow-y: visible;  /* 🔹 取消滾軸，內容超出會直接撐開容器 */
+			max-height: none;     /* 🔹 取消高度限制 */
+			border: 1px solid #ccc;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -357,7 +362,7 @@
 
     {% if report_page %}
         <h2>報修查詢</h2>
-        <div class="table-container">
+        <div class="table-container-NO">
             <table>
                 <thead>
                     {% if tables %}
