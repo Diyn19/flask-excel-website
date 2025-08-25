@@ -249,6 +249,8 @@ def calendar_page():
 
 
 # 取得所有事件，供 FullCalendar 使用
+from datetime import datetime
+
 @app.route('/calendar/events')
 def get_calendar_events():
     try:
@@ -259,6 +261,7 @@ def get_calendar_events():
     # 移除欄位前後空格
     df.columns = df.columns.str.strip()
 
+    today = datetime.today().date()  # 取得今天日期（只有年月日，不含時間）
     events = []
     for _, row in df.iterrows():
         date_val = row.get('date')
@@ -266,23 +269,32 @@ def get_calendar_events():
         
         if pd.notna(date_val) and title_val:
             try:
-                start_date = pd.to_datetime(date_val).strftime('%Y-%m-%d')
+                start_date = pd.to_datetime(date_val).date()
             except Exception as e:
                 print("日期格式錯誤:", date_val)
                 continue
+
+            # 預設顏色
             color_map = {
                 "狄澤洋": "red",
                 "湯家瑋": "green",
                 "吳宗鴻": "orange"
             }
+            color = color_map.get(row.get('屬性'), "blue")
+
+            # 🔹 如果日期小於今天 → 改成灰色
+            if start_date < today:
+                color = "gray"
+
             events.append({
                 "title": str(title_val),
-                "start": start_date,
-                "color": color_map.get(row['屬性'], "blue")
+                "start": start_date.strftime('%Y-%m-%d'),
+                "color": color
             })
 
     print(events)  # 🔹 確認事件是否正確生成
     return jsonify(events)
+
 
 # ====== 月曆功能整合結束 ======
 
