@@ -300,7 +300,15 @@ def get_calendar_events():
 
 @app.route('/mfp_parts', methods=['GET', 'POST'])
 def mfp_parts():
-    version = pd.read_excel('data.xlsx', sheet_name='首頁').iloc[0, 6]  # G1
+    xls = load_excel_from_github(GITHUB_XLSX_URL)
+
+    # 讀取版本號
+    try:
+        version_df = pd.read_excel(xls, sheet_name='首頁', header=None, usecols="G", nrows=1)
+        version = version_df.iloc[0, 0]
+    except:
+        version = "無法讀取版本號"
+        
     df = pd.read_excel('data.xlsx', sheet_name='MFP_零件表')
     
     table_html = ""
