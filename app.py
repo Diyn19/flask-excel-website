@@ -298,6 +298,42 @@ def get_calendar_events():
 
 # ====== 月曆功能整合結束 ======
 
+@app.route('/mfp_parts', methods=['GET', 'POST'])
+def mfp_parts():
+    version = pd.read_excel('data.xlsx', sheet_name='首頁').iloc[0, 6]  # G1
+    df = pd.read_excel('data.xlsx', sheet_name='MFP_零件表')
+    
+    table_html = ""
+    message = ""  # 🔹 提示訊息
+
+    # 取得表單值
+    model = request.form.get('model', '')
+    part = request.form.get('part', '')
+
+    if request.method == 'POST':
+        if not model:
+            message = "⚠️ 請選擇機型"
+        else:
+            filtered_df = df[df['機型'] == model]
+            if part:
+                filtered_df = filtered_df[filtered_df['部件'] == part]
+            if filtered_df.empty:
+                message = "查無資料"
+            else:
+                table_html = filtered_df[['零件名稱', '料號', '型號']].to_html(
+                    classes="data-table", index=False, border=0, justify="center"
+                )
+
+    return render_template(
+        'index.html',
+        version=version,
+        mfp_parts=True,
+        table_html=table_html,
+        selected_model=model,
+        selected_part=part,
+        message=message
+    )
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 10000))
     app.run(host='0.0.0.0', port=port)

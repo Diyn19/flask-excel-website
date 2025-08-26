@@ -192,13 +192,14 @@
 				<button class="button-1">EIP</button></a>
 			<a href="/time"><button class="button-1">出勤時間統計</button></a>
 			<a href="/calendar"><button class="button-1">排程表</button></a>
-			{% if personal_page or report_page or time_page or calendar_page %}
+			<a href="/mfp_parts"><button class="button-1">MFP_零件表</button></a>
+			{% if personal_page or report_page or time_page or calendar_page or mfp_parts %}
 				<a href="/"><button class="button-1">回首頁</button></a>
 			{% endif %}
 		</div>
 	</div>
 
-    {% if not personal_page and not report_page and not time_page and not calendar_page %}
+    {% if not personal_page and not report_page and not time_page and not calendar_page and not mfp_parts %}
         <h2>部門數量</h2>
         <div class="table-container">
             <table>
@@ -377,6 +378,45 @@
             </table>
         </div>
     {% endif %}
+	
+	{% if mfp_parts %}
+	<h2>MFP_零件表</h2>
+	<form method="POST" action="/mfp_parts">
+		<label>選擇機型:</label>
+		<select name="model" required>
+			<option value="">--請選擇--</option>
+			<option value="08、18A" {% if selected_model=="08、18A" %}selected{% endif %}>08、18A</option>
+			<option value="28A" {% if selected_model=="28A" %}selected{% endif %}>28A</option>
+			<option value="05AC" {% if selected_model=="05AC" %}selected{% endif %}>05AC</option>
+			<option value="15AC" {% if selected_model=="15AC" %}selected{% endif %}>15AC</option>
+			<option value="25AC" {% if selected_model=="25AC" %}selected{% endif %}>25AC</option>
+		</select>
+
+		<label>選擇部件:</label>
+		<select name="part">
+			<option value="">--全部--</option>
+			<option value="滾筒組" {% if selected_part=="滾筒組" %}selected{% endif %}>滾筒組</option>
+			<option value="顯像組" {% if selected_part=="顯像組" %}selected{% endif %}>顯像組</option>
+			<option value="定著組" {% if selected_part=="定著組" %}selected{% endif %}>定著組</option>
+			<option value="取紙組" {% if selected_part=="取紙組" %}selected{% endif %}>取紙組</option>
+			<option value="轉寫組" {% if selected_part=="轉寫組" %}selected{% endif %}>轉寫組</option>
+		</select>
+
+		<button type="submit">搜尋</button>
+	</form>
+
+	<!-- 🔹 顯示訊息或表格 -->
+	{% if message %}
+	<div class="message">{{ message }}</div>
+	{% endif %}
+
+	{% if table_html %}
+	<div>
+		{{ table_html|safe }}
+	</div>
+	{% endif %}
+	{% endif %}
+
 	
 	{% if time_page %}
 	<div class="table">
