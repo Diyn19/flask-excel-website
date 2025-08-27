@@ -254,7 +254,8 @@ from datetime import datetime
 @app.route('/calendar/events')
 def get_calendar_events():
     try:
-        df = pd.read_excel('data.xlsx', sheet_name='行事曆')
+        xls = load_excel_from_github(GITHUB_XLSX_URL)
+        df = pd.read_excel(xls, sheet_name='行事曆')
     except FileNotFoundError:
         return jsonify([])
 
@@ -309,7 +310,8 @@ def mfp_parts():
     except:
         version = "無法讀取版本號"
         
-    df = pd.read_excel('data.xlsx', sheet_name='MFP_零件表')
+    xls = load_excel_from_github(GITHUB_XLSX_URL)
+    df = pd.read_excel(xls, sheet_name='MFP_零件表')
     
     table_html = ""
     message = ""  # 🔹 提示訊息
