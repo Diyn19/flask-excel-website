@@ -245,20 +245,24 @@ CALENDAR_SHEET = '行事曆'
 # 顯示排程表頁面
 @app.route('/calendar')
 def calendar_page():
-    return render_template('calendar.html', calendar_page=True)
+    return render_template('index.html', calendar_page=True)
 
 
 # 取得所有事件，供 FullCalendar 使用
+from datetime import datetime
+
 @app.route('/calendar/events')
 def get_calendar_events():
     try:
-        df = pd.read_excel('data.xlsx', sheet_name='行事曆')
+        xls = load_excel_from_github(GITHUB_XLSX_URL)
+        df = pd.read_excel(xls, sheet_name='行事曆')
     except FileNotFoundError:
         return jsonify([])
 
     # 移除欄位前後空格
     df.columns = df.columns.str.strip()
 
+    today = datetime.today().date()  # 取得今天日期（只有年月日，不含時間）
     events = []
     for _, row in df.iterrows():
         date_val = row.get('date')
@@ -266,25 +270,79 @@ def get_calendar_events():
         
         if pd.notna(date_val) and title_val:
             try:
-                start_date = pd.to_datetime(date_val).strftime('%Y-%m-%d')
+                start_date = pd.to_datetime(date_val).date()
             except Exception as e:
                 print("日期格式錯誤:", date_val)
                 continue
+
+            # 預設顏色
             color_map = {
                 "狄澤洋": "red",
                 "湯家瑋": "green",
                 "吳宗鴻": "orange"
             }
+            color = color_map.get(row.get('屬性'), "blue")
+
+            # 🔹 如果日期小於今天 → 改成灰色
+            if start_date < today:
+                color = "gray"
+
             events.append({
                 "title": str(title_val),
-                "start": start_date,
-                "color": color_map.get(row['屬性'], "blue")
+                "start": start_date.strftime('%Y-%m-%d'),
+                "color": color
             })
 
     print(events)  # 🔹 確認事件是否正確生成
     return jsonify(events)
 
+
 # ====== 月曆功能整合結束 ======
+
+@app.route('/mfp_parts', methods=['GET', 'POST'])
+def mfp_parts():
+    xls = load_excel_from_github(GITHUB_XLSX_URL)
+
+    # 讀取版本號
+    try:
+        version_df = pd.read_excel(xls, sheet_name='首頁', header=None, usecols="G", nrows=1)
+        version = version_df.iloc[0, 0]
+    except:
+        version = "無法讀取版本號"
+        
+    xls = load_excel_from_github(GITHUB_XLSX_URL)
+    df = pd.read_excel(xls, sheet_name='MFP_零件表')
+    
+    table_html = ""
+    message = ""  # 🔹 提示訊息
+
+    # 取得表單值
+    model = request.form.get('model', '')
+    part = request.form.get('part', '')
+
+    if request.method == 'POST':
+        if not model:
+            message = "⚠️ 請選擇機型"
+        else:
+            filtered_df = df[df['機型'] == model]
+            if part:
+                filtered_df = filtered_df[filtered_df['部件'] == part]
+            if filtered_df.empty:
+                message = "查無資料"
+            else:
+                table_html = filtered_df[['零件名稱', '料號', '型號']].to_html(
+                    classes="data-table", index=False, border=0, justify="center"
+                )
+
+    return render_template(
+        'index.html',
+        version=version,
+        mfp_parts=True,
+        table_html=table_html,
+        selected_model=model,
+        selected_part=part,
+        message=message
+    )
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 10000))

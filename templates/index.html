@@ -491,6 +491,9 @@
 	</div>  <!-- 關閉 table-container 的 div -->
 	{% endif %}
 
+
+前端目前是這樣 請把新功能整合進去
+前端目前是這樣 請把新功能整合進去
 {% if calendar_page %}
 <div class="table">
     <h2 class="calendar">部門排程</h2>
@@ -572,38 +575,6 @@
 		calendar.render();
 	});
 	</script>
-
-
-<script>
-    function toggleSection(id, event) {
-        event.preventDefault();
-        const content = document.getElementById(id);
-        if (content.style.display === "none") {
-            content.style.display = "block";
-            event.target.textContent = "▼";
-        } else {
-            content.style.display = "none";
-            event.target.textContent = "▶";
-        }
-    }
-
-    window.addEventListener('scroll', function() {
-        const btn = document.getElementById('backToTop');
-        if (window.scrollY > 100) {
-            btn.style.display = 'block';
-        } else {
-            btn.style.display = 'none';
-        }
-    });
-
-    const path = window.location.pathname;
-    const encodedName = path.slice(1);
-    const name = decodeURIComponent(encodedName);
-    if (name) {
-        const titleEl = document.getElementById('season-title');
-        titleEl.textContent = name + ' - 季保養進度';
-    }
 	
-</script>
 </body>
 </html>

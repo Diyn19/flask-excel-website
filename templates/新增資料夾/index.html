@@ -28,7 +28,27 @@
             padding: 10px 15px;
 			font-size: 20px;
             margin: 5px;
-            background-color: #1A1A1A;
+            background-color: #20B2AA;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+		button.button-2 {
+            padding: 10px 15px;
+			font-size: 20px;
+            margin: 5px;
+            background-color: #FFA500;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+		button.button-3 {
+            padding: 10px 15px;
+			font-size: 20px;
+            margin: 5px;
+            background-color: #000000;
             color: white;
             border: none;
             border-radius: 5px;
@@ -48,6 +68,11 @@
             overflow-y: auto;
             max-height: 600px;
             border: 1px solid #ccc;
+        }
+		.table-container-NO {
+            overflow-y: visible;  /* 🔹 取消滾軸，內容超出會直接撐開容器 */
+			max-height: none;     /* 🔹 取消高度限制 */
+			border: 1px solid #ccc;
         }
         table {
             width: 100%;
@@ -137,6 +162,8 @@
 			報修查詢
 		{% elif personal_page %}
 			PMQ3 個人查詢
+		{% elif calendar_page %}
+			部門排程
 		{% else %}
 			PMQ3 部門總覽
 		{% endif %}
@@ -147,7 +174,7 @@
 {% endif %}
 
     <form method="get">
-        {% if not report_page %}
+        {% if not report_page and not calendar_page and not time_page %}
             <input type="text" name="keyword" placeholder="請輸入關鍵字查詢" value="{{ keyword }}">
         {% endif %}
         {% if report_page %}
@@ -164,7 +191,9 @@
                 {% endfor %}
             </select>
         {% endif %}
+		{% if not calendar_page and not time_page %}
         <button type="submit">搜尋</button>
+		{% endif %}
     </form>
 	
 	<div class="button-row">
@@ -178,18 +207,19 @@
 			<a href="https://bot.toshibatec.com.tw/hl0800/showjob31.php" target="_blank" rel="noopener noreferrer">
 				<button class="button-1">報修刊版</button></a>
 			<a href="https://imainte.toshibatec.com.tw/i_mainte_center2/login.cfm?CFID=258322&CFTOKEN=f58548bc0ee07d0d-A0165FB1-FFC4-BBD8-DC3EBB80DDEA857B" target="_blank" rel="noopener noreferrer">
-				<button class="button-1">iMainte</button></a>
+				<button class="button-2">iMainte</button></a>
 			<a href="http://eip.toshibatec.com.tw/Main.aspx" target="_blank" rel="noopener noreferrer">
-				<button class="button-1">EIP</button></a>
+				<button class="button-2">EIP</button></a>
 			<a href="/time"><button class="button-1">出勤時間統計</button></a>
-			<a href="/calendar"><button class="button-1">排程表</button></a>
-			{% if personal_page or report_page or time_page %}
-				<a href="/"><button class="button-1">回首頁</button></a>
+			<a href="/calendar"><button class="button-2">排程表</button></a>
+			<a href="/mfp_parts"><button class="button-1">MFP_零件表</button></a>
+			{% if personal_page or report_page or time_page or calendar_page or mfp_parts %}
+				<a href="/"><button class="button-3">回首頁</button></a>
 			{% endif %}
 		</div>
 	</div>
 
-    {% if not personal_page and not report_page and not time_page %}
+    {% if not personal_page and not report_page and not time_page and not calendar_page and not mfp_parts %}
         <h2>部門數量</h2>
         <div class="table-container">
             <table>
@@ -353,7 +383,7 @@
 
     {% if report_page %}
         <h2>報修查詢</h2>
-        <div class="table-container">
+        <div class="table-container-NO">
             <table>
                 <thead>
                     {% if tables %}
@@ -368,6 +398,45 @@
             </table>
         </div>
     {% endif %}
+	
+	{% if mfp_parts %}
+	<h2>MFP_零件表</h2>
+	<form method="POST" action="/mfp_parts">
+		<label>選擇機型:</label>
+		<select name="model" required>
+			<option value="">--請選擇--</option>
+			<option value="08、18A" {% if selected_model=="08、18A" %}selected{% endif %}>08、18A</option>
+			<option value="28A" {% if selected_model=="28A" %}selected{% endif %}>28A</option>
+			<option value="05AC" {% if selected_model=="05AC" %}selected{% endif %}>05AC</option>
+			<option value="15AC" {% if selected_model=="15AC" %}selected{% endif %}>15AC</option>
+			<option value="25AC" {% if selected_model=="25AC" %}selected{% endif %}>25AC</option>
+		</select>
+
+		<label>選擇部件:</label>
+		<select name="part">
+			<option value="">--全部--</option>
+			<option value="滾筒組" {% if selected_part=="滾筒組" %}selected{% endif %}>滾筒組</option>
+			<option value="顯像組" {% if selected_part=="顯像組" %}selected{% endif %}>顯像組</option>
+			<option value="定著組" {% if selected_part=="定著組" %}selected{% endif %}>定著組</option>
+			<option value="取紙組" {% if selected_part=="取紙組" %}selected{% endif %}>取紙組</option>
+			<option value="轉寫組" {% if selected_part=="轉寫組" %}selected{% endif %}>轉寫組</option>
+		</select>
+
+		<button type="submit">搜尋</button>
+	</form>
+
+	<!-- 🔹 顯示訊息或表格 -->
+	{% if message %}
+	<div class="message">{{ message }}</div>
+	{% endif %}
+
+	{% if table_html %}
+	<div>
+		{{ table_html|safe }}
+	</div>
+	{% endif %}
+	{% endif %}
+
 	
 	{% if time_page %}
 	<div class="table">
@@ -423,38 +492,89 @@
 	{% endif %}
 
 
+前端目前是這樣 請把新功能整合進去
+前端目前是這樣 請把新功能整合進去
+{% if calendar_page %}
+<div class="table">
+    <h2 class="calendar">部門排程</h2>
 
-    <button id="backToTop" onclick="window.scrollTo({top: 0, behavior: 'smooth'});">回頂部</button>
+    <!-- FullCalendar CSS & JS -->
+	<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+	<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
 
-<script>
-    function toggleSection(id, event) {
-        event.preventDefault();
-        const content = document.getElementById(id);
-        if (content.style.display === "none") {
-            content.style.display = "block";
-            event.target.textContent = "▼";
-        } else {
-            content.style.display = "none";
-            event.target.textContent = "▶";
-        }
-    }
+	<style>
+	  /* 允許事件標題/時間換行，移除省略號 */
+	  .fc .fc-event-title, 
+	  .fc .fc-event-time, 
+	  .fc .fc-event-main {
+		white-space: normal !important;
+		overflow: visible !important;
+		text-overflow: clip !important;
+	  }
 
-    window.addEventListener('scroll', function() {
-        const btn = document.getElementById('backToTop');
-        if (window.scrollY > 100) {
-            btn.style.display = 'block';
-        } else {
-            btn.style.display = 'none';
-        }
-    });
+	  /* 月曆 (dayGrid) 兩種事件外觀都一併處理 */
+	  .fc .fc-daygrid-event, 
+	  .fc .fc-daygrid-dot-event {
+		white-space: normal !important;
+	  }
 
-    const path = window.location.pathname;
-    const encodedName = path.slice(1);
-    const name = decodeURIComponent(encodedName);
-    if (name) {
-        const titleEl = document.getElementById('season-title');
-        titleEl.textContent = name + ' - 季保養進度';
-    }
-</script>
+	  /* 長字串（如沒有空白的編號/網址）也要能斷行 */
+	  .fc .fc-daygrid-event .fc-event-title,
+	  .fc .fc-daygrid-dot-event .fc-event-title,
+	  .fc .fc-timegrid-event .fc-event-title {
+		overflow-wrap: anywhere;   /* 新版瀏覽器 */
+		word-break: break-word;    /* 相容性備援 */
+	  }
+
+	  /* 可選：讓事件卡片更像「方塊」，有時更好閱讀 */
+	  .fc .fc-daygrid-event {
+		display: block;            
+		padding: 2px 4px;          
+	  }
+
+	  /* ===== 固定每日格子高度 ===== */
+	  .fc .fc-daygrid-day-frame {
+		height: 160px !important;     /* 固定高度 */
+		overflow-y: auto !important;  /* 超出時出現捲軸 */
+	  }
+
+	  /* 避免 flex 撐高 */
+	  .fc .fc-daygrid-day {
+		flex: 0 0 auto !important;
+	  }
+	</style>
+
+	<div id="calendar"></div>
+	<button id="backToTop" onclick="window.scrollTo({top: 0, behavior: 'smooth'});">回頂部</button>
+	</div>
+	{% endif %}
+
+	<script>
+	document.addEventListener('DOMContentLoaded', function () {
+		let calendarEl = document.getElementById('calendar');
+
+		let calendar = new FullCalendar.Calendar(calendarEl, {
+			initialView: 'dayGridMonth',
+			weekends: false,  // 不顯示六日
+			hiddenDays: [0, 6],
+			events: {
+				url: '/calendar/events',
+				method: 'GET'
+			},
+			eventDisplay: 'block',
+
+			// 只保留日期數字，避免被內容撐開
+			dayCellContent: function(arg) { return arg.dayNumberText; }, 
+
+			height: 'auto',       // 整體自動
+			contentHeight: 'auto',
+			dayMaxEventRows: false,
+			aspectRatio: 1.35
+		});
+
+		calendar.render();
+	});
+	</script>
+	
 </body>
 </html>
