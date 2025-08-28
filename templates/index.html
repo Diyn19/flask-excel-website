@@ -44,6 +44,16 @@
             border-radius: 5px;
             cursor: pointer;
         }
+		button.button-3 {
+            padding: 10px 15px;
+			font-size: 20px;
+            margin: 5px;
+            background-color: #000000;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
 		.button-row {
 			display: flex;
 			flex-wrap: wrap; /* 自動換行（必要時） */
@@ -204,7 +214,7 @@
 			<a href="/calendar"><button class="button-2">排程表</button></a>
 			<a href="/mfp_parts"><button class="button-1">MFP_零件表</button></a>
 			{% if personal_page or report_page or time_page or calendar_page or mfp_parts %}
-				<a href="/"><button class="button-1">回首頁</button></a>
+				<a href="/"><button class="button-3">回首頁</button></a>
 			{% endif %}
 		</div>
 	</div>
