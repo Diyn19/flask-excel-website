@@ -277,7 +277,8 @@ def get_calendar_events():
 
             # 預設顏色
             color_map = {
-                "狄澤洋","V": "red",
+                "狄澤洋": "red",
+                "V": "red",
                 "湯家瑋": "green",
                 "吳宗鴻": "orange"
             }
