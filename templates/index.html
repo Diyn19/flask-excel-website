@@ -272,7 +272,7 @@
         </div>
 		
 		<h2>
-            <button onclick="toggleSection('HUB-content', event)" style="margin-right: 8px;">▶</button>
+            <button onclick="toggleHUB()" style="margin-right: 8px;">▶</button>
             HUB異常檢查
         </h2>
         <div id="HUB-content" style="display: none;" class="table-container">
@@ -571,6 +571,15 @@
 
 		calendar.render();
 	});
+	</script>
+	
+	<script>
+	function toggleHUB() {
+	  let hub = document.getElementById("HUB-content");
+	  hub.style.display = (hub.style.display === "none" || hub.style.display === "") 
+		? "block" 
+		: "none";
+	}
 	</script>
 	
 </body>
