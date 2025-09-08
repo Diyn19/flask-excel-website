@@ -45,6 +45,7 @@ try:
 
     # 切換到新開視窗
     driver.switch_to.window(driver.window_handles[-1])
+    driver.refresh()
     wait.until(EC.title_contains("台芝技術服務分析系統"))
 
     ### === POS服務工作統計表 === ###
@@ -55,36 +56,32 @@ try:
     driver.switch_to.frame("iframe")
     time.sleep(2)
 
-    for attempt in range(2):
-        try:
-            customer_field = wait.until(EC.element_to_be_clickable((By.NAME, "customer")))
-            customer_field.click()
-            time.sleep(0.5)
-            customer_option = wait.until(EC.element_to_be_clickable(
-                (By.XPATH, '//select[@name="customer"]/option[contains(text(),"萊爾富")]')))
-            customer_option.click()
+    try:
+        # 檢查是否有 Warning: mysql
+        if "Warning: mysql" in driver.page_source:
+            print("❌ 偵測到 Warning: mysql，流程中止。")
+            raise Exception("Warning: mysql detected")
 
-            dept_field = wait.until(EC.element_to_be_clickable((By.NAME, "dept_id")))
-            dept_field.click()
-            time.sleep(0.5)
-            dept_option = wait.until(EC.element_to_be_clickable(
-                (By.XPATH, '//select[@name="dept_id"]/option[contains(text(),"新北勤務一部")]')))
-            dept_option.click()
-            break
-        except TimeoutException:
-            if attempt == 0:
-                print("⚠️ POS: 找不到 customer 或 dept_id，重新整理頁面...")
-                driver.refresh()
-                time.sleep(5)
-                driver.switch_to.frame("iframe")
-            else:
-                print("❌ POS: 找不到 customer 或 dept_id，流程中止。")
-                raise
+        # 嘗試點擊「萊爾富」
+        customer_option = wait.until(EC.element_to_be_clickable(
+            (By.XPATH, '//option[contains(text(),"萊爾富")]')))
+        customer_option.click()
+        time.sleep(0.5)
+
+        # 嘗試點擊「新北勤務一部」
+        dept_option = wait.until(EC.element_to_be_clickable(
+            (By.XPATH, '//option[contains(text(),"新北勤務一部")]')))
+        dept_option.click()
+
+    except TimeoutException:
+        print("❌ 找不到『萊爾富』或『新北勤務一部』，流程中止。")
+        raise
 
     # 查詢並匯出
     driver.find_element(By.XPATH, '//input[@type="submit" and @value="查詢"]').click()
     wait.until(EC.presence_of_element_located((By.XPATH, '//input[@type="submit" and @value="匯出成EXCEL"]')))
 
+    # 刪除舊檔
     for f in glob.glob(pos_pattern):
         os.remove(f)
 
@@ -113,32 +110,30 @@ try:
     driver.switch_to.default_content()
     wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "服務資料查詢"))).click()
     time.sleep(1)
-    wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "MFP服務工作統計表"))).click()
+    wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "勤務工作統計表"))).click()
     driver.switch_to.frame("iframe")
     time.sleep(2)
 
-    for attempt in range(2):
-        try:
-            dept_field = wait.until(EC.element_to_be_clickable((By.NAME, "dept_id")))
-            dept_field.click()
-            time.sleep(0.5)
-            dept_option = wait.until(EC.element_to_be_clickable(
-                (By.XPATH, '//select[@name="dept_id"]/option[contains(text(),"新北勤務一部")]')))
-            dept_option.click()
-            break
-        except TimeoutException:
-            if attempt == 0:
-                print("⚠️ MFP: 找不到 dept_id，重新整理頁面...")
-                driver.refresh()
-                time.sleep(5)
-                driver.switch_to.frame("iframe")
-            else:
-                print("❌ MFP: 找不到 dept_id，流程中止。")
-                raise
+    try:
+        # 檢查是否有 Warning: mysql
+        if "Warning: mysql" in driver.page_source:
+            print("❌ 偵測到 Warning: mysql，流程中止。")
+            raise Exception("Warning: mysql detected")
+
+        # 嘗試點擊「新北勤務一部」
+        customer_option = wait.until(EC.element_to_be_clickable(
+            (By.XPATH, '//option[contains(text(),"新北勤務一部")]')))
+        customer_option.click()
+        time.sleep(0.5)
+
+    except TimeoutException:
+        print("❌『新北勤務一部』，流程中止。")
+        raise
 
     driver.find_element(By.XPATH, '//input[@type="submit" and @value="查詢"]').click()
     wait.until(EC.presence_of_element_located((By.XPATH, '//input[@type="submit" and @value="匯出成EXCEL"]')))
 
+    # 刪除舊檔
     for f in glob.glob(mfp_pattern):
         os.remove(f)
 
