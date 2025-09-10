@@ -272,7 +272,7 @@
         </div>
 		
 		<h2>
-            <button onclick="toggleSection('HUB-content', event)" style="margin-right: 8px;">▶</button>
+            <button onclick="toggleHUB()" style="margin-right: 8px;">▶</button>
             HUB異常檢查
         </h2>
         <div id="HUB-content" style="display: none;" class="table-container">
@@ -491,9 +491,6 @@
 	</div>  <!-- 關閉 table-container 的 div -->
 	{% endif %}
 
-
-前端目前是這樣 請把新功能整合進去
-前端目前是這樣 請把新功能整合進去
 {% if calendar_page %}
 <div class="table">
     <h2 class="calendar">部門排程</h2>
@@ -574,6 +571,15 @@
 
 		calendar.render();
 	});
+	</script>
+	
+	<script>
+	function toggleHUB() {
+	  let hub = document.getElementById("HUB-content");
+	  hub.style.display = (hub.style.display === "none" || hub.style.display === "") 
+		? "block" 
+		: "none";
+	}
 	</script>
 	
 </body>
