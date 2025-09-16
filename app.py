@@ -122,7 +122,7 @@ def personal(name):
         keyword=keyword,
         store_id='',
         repair_item='',
-        personal_page=True,
+        personal_page=name,
         report_page=False,
         no_data_found=no_data_found,
         show_top=True,
