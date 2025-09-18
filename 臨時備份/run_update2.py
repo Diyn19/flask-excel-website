@@ -1,59 +1,44 @@
 import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.styles import Alignment, numbers
+from openpyxl.utils import get_column_letter
 from datetime import datetime
 import copy
+import glob
 import os
-import threading
-import sys
 
-# 預設值（今天年月）
-default_tag = datetime.today().strftime("%Y%m")
-user_input = {"value": None}
-
-def ask_input():
-    try:
-        user_input["value"] = input("請輸入一或多個年月（例如 202405 202406），10 秒內未輸入則自動使用當月：").strip()
-    except EOFError:
-        user_input["value"] = ""
-
-# 啟動輸入監聽執行緒
-t = threading.Thread(target=ask_input)
-t.daemon = True
-t.start()
-t.join(timeout=10)  # 最多等 10 秒
-
-# 判斷結果
-if user_input["value"]:
-    raw_tags = user_input["value"].replace(",", " ").split()
+# 詢問年月，可輸入多個用空格或逗號分隔
+input_tags = input("請輸入一或多個年月（例如 202405 202406），直接 Enter 使用當月：").strip()
+if input_tags:
+    raw_tags = input_tags.replace(",", " ").split()
     month_tags = [tag for tag in raw_tags if len(tag) == 6 and tag.isdigit()]
 else:
-    print(f"⏰ 超過 10 秒未輸入，自動使用 {default_tag}")
-    month_tags = [default_tag]
+    month_tags = [datetime.today().strftime("%Y%m")]
 
-
-# 資料來源檔案與工作表
+# 資料來源檔案
 data_file = "data.xlsx"
 data_wb = load_workbook(data_file)
-data_ws = data_wb["MFP"]  # ✅ 分頁改為 MFP
+data_ws = data_wb["IM"]
 
-# 取得所有現有案號（B欄 = 第2欄 = row[1]）
+# 取得所有現有案號（C欄，第3欄）
 existing_case_ids = set()
-for row in data_ws.iter_rows(min_row=2, min_col=2, max_col=2):
+for row in data_ws.iter_rows(min_row=2, min_col=3, max_col=3):
     val = row[0].value
     if val:
         existing_case_ids.add(str(val).strip())
 
-# 參考格式列（最後一列）作為樣板
+# 參考格式用於複製樣式與公式
 ref_row = data_ws.max_row
 ref_row_height = 21.66
 ref_cells = {cell.column: cell for cell in data_ws[ref_row]}
+al_formula_cell = data_ws[f"AL{ref_row}"]
+am_formula_cell = data_ws[f"AM{ref_row}"]
 
 total_new_rows = 0
 
-# 逐一處理輸入的年月
+# 處理多個報表檔案
 for tag in month_tags:
-    report_file = f"IM/{tag}_Service_Count_Report.xlsx"  # ✅ 檔案名稱格式
+    report_file = f"IM/{tag}_HL_Maintain_Report.xlsx"
     if not os.path.exists(report_file):
         print(f"❌ 找不到：{report_file}")
         continue
@@ -64,33 +49,23 @@ for tag in month_tags:
 
     start_row = 2
     append_rows = []
-
-    # 掃描報表每列，確保讀取到第28欄(AB欄)
-    for row in report_ws.iter_rows(min_row=start_row, max_col=28):
-        ab_value = row[27].value  # AB欄 (第28欄，索引27)
-        if ab_value != 1:
-            continue
-        
-        l_value = row[11].value  # L欄 (第12欄，索引11)
-        if l_value and "萊爾富" in str(l_value):
-            continue  # L欄包含萊爾富就跳過
-        
-        case_cell = row[1]  # 案號B欄 (索引1)
+    for row in report_ws.iter_rows(min_row=start_row):
+        case_cell = row[2]  # C欄
         case_id_raw = str(case_cell.value).strip() if case_cell.value else ""
         if not case_id_raw or not case_id_raw.isdigit():
             continue
-        
+
         if case_id_raw not in existing_case_ids:
             values = [cell.value for cell in row]
             if all(v is None for v in values):
                 break
             append_rows.append(values)
-            existing_case_ids.add(case_id_raw)
-            
+            existing_case_ids.add(case_id_raw)  # 確保不重複新增
+
     print(f"   ➕ 發現 {len(append_rows)} 列新資料")
     total_new_rows += len(append_rows)
 
-    # 新增資料到主檔
+    # 寫入資料
     for row_data in append_rows:
         data_ws.append(row_data)
         new_row = data_ws.max_row
@@ -105,7 +80,6 @@ for tag in month_tags:
                 cell.border = copy.copy(ref_cell.border)
                 cell.fill = copy.copy(ref_cell.fill)
 
-            # 若第24欄為時間，處理格式與樣式
             if col_idx == 24 and value:
                 try:
                     if isinstance(value, str):
@@ -121,6 +95,16 @@ for tag in month_tags:
                 except Exception as e:
                     print(f"❗ 日期格式錯誤（欄{col_idx}）：{e}")
 
-# 儲存更新後的 Excel
+        # 複製公式
+        for col_letter, formula_cell in [("AL", al_formula_cell), ("AM", am_formula_cell)]:
+            target_cell = data_ws[f"{col_letter}{new_row}"]
+            formula = formula_cell.value.replace(str(ref_row), str(new_row)) if formula_cell.data_type == "f" else formula_cell.value
+            target_cell.value = formula
+            target_cell.font = copy.copy(formula_cell.font)
+            target_cell.alignment = copy.copy(formula_cell.alignment)
+            target_cell.border = copy.copy(formula_cell.border)
+            target_cell.number_format = formula_cell.number_format
+
+# 儲存更新
 data_wb.save(data_file)
 print(f"✅ 更新完成，共加入 {total_new_rows} 筆資料")

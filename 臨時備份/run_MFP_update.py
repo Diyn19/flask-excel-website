@@ -4,33 +4,14 @@ from openpyxl.styles import Alignment, numbers
 from datetime import datetime
 import copy
 import os
-import threading
-import sys
 
-# 預設值（今天年月）
-default_tag = datetime.today().strftime("%Y%m")
-user_input = {"value": None}
-
-def ask_input():
-    try:
-        user_input["value"] = input("請輸入一或多個年月（例如 202405 202406），10 秒內未輸入則自動使用當月：").strip()
-    except EOFError:
-        user_input["value"] = ""
-
-# 啟動輸入監聽執行緒
-t = threading.Thread(target=ask_input)
-t.daemon = True
-t.start()
-t.join(timeout=10)  # 最多等 10 秒
-
-# 判斷結果
-if user_input["value"]:
-    raw_tags = user_input["value"].replace(",", " ").split()
+# 詢問年月，可輸入多個用空格或逗號分隔
+input_tags = input("請輸入一或多個年月（例如 202405 202406），直接 Enter 使用當月：").strip()
+if input_tags:
+    raw_tags = input_tags.replace(",", " ").split()
     month_tags = [tag for tag in raw_tags if len(tag) == 6 and tag.isdigit()]
 else:
-    print(f"⏰ 超過 10 秒未輸入，自動使用 {default_tag}")
-    month_tags = [default_tag]
-
+    month_tags = [datetime.today().strftime("%Y%m")]
 
 # 資料來源檔案與工作表
 data_file = "data.xlsx"
