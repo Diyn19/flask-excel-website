@@ -34,7 +34,7 @@ sheet = wb["首頁"]
 sheet["G1"] = version["value"]
 wb.save(file_path)
 
-print(f"✅ 已將版本號 {version['value']} 寫入 G1 儲存格")
+print(f"已將版本號 {version['value']} 寫入 G1 儲存格")
 
 # 輸出給批次檔
 print(version["value"])
