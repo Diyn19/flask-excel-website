@@ -35,7 +35,7 @@ if errorlevel 1 goto error
 
 :: 第 5 步：輸入版本號（10 秒內輸入，否則自動帶入時間 MMddHHmm）
 for /f "delims=" %%a in ('powershell -command ^
-  "$start = Get-Date; $ver=$null; while((New-TimeSpan $start (Get-Date)).TotalSeconds -lt 10) { if ([console]::KeyAvailable) { $ver = Read-Host '請輸入版本號（10 秒內，直接 Enter 自動填入目前時間 MMddHHmm）'; break } ; Start-Sleep -Milliseconds 200 }; if (-not $ver) { $ver = Get-Date -Format MMddHHmm }; Write-Output $ver"') do set vernum=%%a
+  "try { $task = [System.Threading.Tasks.Task]::Run({Read-Host '請輸入版本號（10 秒內，直接 Enter 自動填入目前時間 MMddHHmm）'}); if ($task.Wait(10000)) { $ver=$task.Result } else { $ver=$null }; if (-not $ver) { $ver = Get-Date -Format MMddHHmm }; Write-Output $ver } catch { Get-Date -Format MMddHHmm }"') do set vernum=%%a
 
 echo [5/7] 寫入版本號 %vernum% 到 Excel...
 python "add_ver.py" %vernum%
@@ -55,7 +55,7 @@ goto git_operation
 :git_only
 :: 只執行 Git，也需輸入版本號（10 秒內輸入，否則自動帶入時間 MMddHHmm）
 for /f "delims=" %%a in ('powershell -command ^
-  "$start = Get-Date; $ver=$null; while((New-TimeSpan $start (Get-Date)).TotalSeconds -lt 10) { if ([console]::KeyAvailable) { $ver = Read-Host '請輸入版本號（10 秒內，直接 Enter 自動填入目前時間 MMddHHmm）'; break } ; Start-Sleep -Milliseconds 200 }; if (-not $ver) { $ver = Get-Date -Format MMddHHmm }; Write-Output $ver"') do set vernum=%%a
+  "try { $task = [System.Threading.Tasks.Task]::Run({Read-Host '請輸入版本號（10 秒內，直接 Enter 自動填入目前時間 MMddHHmm）'}); if ($task.Wait(10000)) { $ver=$task.Result } else { $ver=$null }; if (-not $ver) { $ver = Get-Date -Format MMddHHmm }; Write-Output $ver } catch { Get-Date -Format MMddHHmm }"') do set vernum=%%a
 
 echo [1/3] 寫入版本號 %vernum% 到 Excel...
 python "add_ver.py" %vernum%
