@@ -16,7 +16,11 @@ if /i "!skipDownload!"=="Y" (
 ) else (
     echo [1/7] 執行 Excel_Edge.py...
     python "Excel_Edge.py"
-    if errorlevel 1 goto error
+    if errorlevel 1 (
+        echo 檔案下載異常
+        pause
+        exit /b
+    )
 )
 
 :: [2/7] 複製 data.xlsx 到臨時備份
