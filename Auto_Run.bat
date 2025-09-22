@@ -38,8 +38,9 @@ echo [4/7] 執行 run_MFP_update.py...
 python "run_MFP_update.py"
 if errorlevel 1 goto error
 
-:: [5/7] 執行 add_ver.py，自動或手動版本號
+:: [5/7] 執行 add_ver.py（完整流程）
 echo [5/7] 執行 add_ver.py（版本號可手動輸入，10 秒後自動填入）...
+python "add_ver.py"
 for /f %%a in ('python "add_ver.py"') do set vernum=%%a
 echo 使用版本號: %vernum%
 
@@ -57,8 +58,8 @@ if errorlevel 1 goto error
 goto git_operation
 
 :git_only
-:: 只執行 Git，也需取得版本號
-for /f %%a in ('python "add_ver.py"') do set vernum=%%a
+:: Git-only 模式，直接自動生成版本號
+for /f %%a in ('python "add_ver.py" --auto') do set vernum=%%a
 echo 使用版本號: %vernum%
 
 echo [1/3] 寫入版本號到 Excel（已由 add_ver.py 寫入）
