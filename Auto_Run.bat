@@ -3,13 +3,17 @@ setlocal enabledelayedexpansion
 
 cd /d D:\flask
 
+:: -----------------------------
 :: 詢問是否直接開始 Git 操作
+:: -----------------------------
 set /p skipAll=是否直接開始 Git 操作 [Y/N]：
 if /i "!skipAll!"=="Y" (
     goto git_only
 )
 
+:: -----------------------------
 :: 詢問是否跳過下載檔案
+:: -----------------------------
 set /p skipDownload=是否跳過下載檔案 [Y/N]：
 if /i "!skipDownload!"=="Y" (
     echo [1/7] 已選擇跳過下載檔案。
@@ -23,42 +27,58 @@ if /i "!skipDownload!"=="Y" (
     )
 )
 
+:: -----------------------------
 :: [2/7] 複製 data.xlsx 到臨時備份
+:: -----------------------------
 echo [2/7] 複製 data.xlsx 到臨時備份資料夾...
 copy /Y "data.xlsx" "臨時備份\自動備份\data.xlsx"
 if errorlevel 1 goto error
 
+:: -----------------------------
 :: [3/7] 執行 run_update2.py
+:: -----------------------------
 echo [3/7] 執行 run_update2.py...
 python "run_update2.py"
 if errorlevel 1 goto error
 
+:: -----------------------------
 :: [4/7] 執行 run_MFP_update.py
+:: -----------------------------
 echo [4/7] 執行 run_MFP_update.py...
 python "run_MFP_update.py"
 if errorlevel 1 goto error
 
+:: -----------------------------
 :: [5/7] 執行 add_ver.py（完整流程）
+:: -----------------------------
 echo [5/7] 執行 add_ver.py（版本號可手動輸入，10 秒後自動填入）...
-python "add_ver.py"
 for /f %%a in ('python "add_ver.py"') do set vernum=%%a
 echo 使用版本號: %vernum%
 
+:: -----------------------------
 :: [6/7] 執行 data_updw.py
+:: -----------------------------
 echo [6/7] 執行 data_updw.py...
 python "data_updw.py"
 if errorlevel 1 goto error
 
+:: -----------------------------
 :: [7/7] 執行 save_excel.exe
+:: -----------------------------
 echo [7/7] 啟動 save_excel.exe...
 start /wait "" "save_excel.exe"
 if errorlevel 1 goto error
 
+:: -----------------------------
 :: 執行 Git 操作
+:: -----------------------------
 goto git_operation
 
+:: -----------------------------
+:: Git-only 模式
+:: -----------------------------
 :git_only
-:: Git-only 模式，直接自動生成版本號
+:: 自動生成版本號
 for /f %%a in ('python "add_ver.py" --auto') do set vernum=%%a
 echo 使用版本號: %vernum%
 
@@ -81,6 +101,9 @@ echo 所有程序已完成！
 pause
 exit /b
 
+:: -----------------------------
+:: Git 操作子流程
+:: -----------------------------
 :git_operation
 echo [Git] 進行 Git 操作...
 cd /d D:\flask
@@ -96,6 +119,9 @@ echo 所有程序已完成！
 pause
 exit /b
 
+:: -----------------------------
+:: 錯誤處理
+:: -----------------------------
 :error
 echo 錯誤：某個步驟執行失敗，流程中止。
 pause

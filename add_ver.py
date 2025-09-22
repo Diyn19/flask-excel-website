@@ -2,6 +2,7 @@ import openpyxl
 from datetime import datetime
 import threading
 import sys
+import argparse
 
 def get_version(timeout=10, auto_only=False):
     version = None
@@ -15,7 +16,7 @@ def get_version(timeout=10, auto_only=False):
                 user_input["value"] = ""
 
         t = threading.Thread(target=ask_input)
-        t.daemon = True
+        # 不設 daemon，避免 Python 結束報錯
         t.start()
         t.join(timeout=timeout)
 
@@ -25,7 +26,7 @@ def get_version(timeout=10, auto_only=False):
     if not version:
         version = datetime.now().strftime("%m%d%H%M")
         if not auto_only:
-            print(f"\n⏰ 超過 {timeout} 秒未輸入，自動使用版本號 {version}")
+            print(f"\n[超時] 超過 {timeout} 秒未輸入，自動使用版本號 {version}")
 
     # 寫入 Excel
     file_path = "data.xlsx"
@@ -40,8 +41,7 @@ def get_version(timeout=10, auto_only=False):
     return version
 
 if __name__ == "__main__":
-    import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument("--auto", action="store_true", help="自動生成版本號（Git-only 模式）")
+    parser.add_argument("--auto", action="store_true", help="Git-only 自動版本號")
     args = parser.parse_args()
     get_version(auto_only=args.auto)
