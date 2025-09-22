@@ -1,7 +1,6 @@
 import openpyxl
 from datetime import datetime
 import threading
-import sys
 import argparse
 
 def get_version(timeout=10, auto_only=False):
@@ -11,7 +10,9 @@ def get_version(timeout=10, auto_only=False):
     if not auto_only:
         def ask_input():
             try:
-                user_input["value"] = input(f"請輸入版本號（{timeout} 秒內輸入，否則自動填入 MMDDHHMM）：\n> ").strip()
+                user_input["value"] = input(
+                    f"請輸入版本號（{timeout} 秒內輸入，否則自動填入 MMDDHHMM）：\n> "
+                ).strip()
             except EOFError:
                 user_input["value"] = ""
 
