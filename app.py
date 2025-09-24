@@ -247,6 +247,12 @@ CALENDAR_SHEET = '行事曆'
 def calendar_page():
     return render_template('index.html', calendar_page=True)
 
+            # 讀取版本號
+    try:
+        version_df = pd.read_excel(xls, sheet_name='首頁', header=None, usecols="G", nrows=1)
+        version = version_df.iloc[0, 0]
+    except:
+        version = "無法讀取版本號"
 
 # 取得所有事件，供 FullCalendar 使用
 from datetime import datetime
