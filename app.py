@@ -258,6 +258,13 @@ def get_calendar_events():
         df = pd.read_excel(xls, sheet_name='行事曆')
     except FileNotFoundError:
         return jsonify([])
+    
+        # 讀取版本號
+    try:
+        version_df = pd.read_excel(xls, sheet_name='首頁', header=None, usecols="G", nrows=1)
+        version = version_df.iloc[0, 0]
+    except:
+        version = "無法讀取版本號"
 
     # 移除欄位前後空格
     df.columns = df.columns.str.strip()
