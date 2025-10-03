@@ -52,11 +52,11 @@ if errorlevel 1 goto error
 :: [5/7] 執行 add_ver.py（完整流程）
 :: -----------------------------
 echo [5/7] 執行 add_ver.py（版本號可手動輸入，10 秒後自動填入）...
-python "add_ver.py"
+call python "add_ver.py"
 
-:: 從 Excel 讀取版本號
-for /f %%a in ('python -c "import openpyxl; wb=openpyxl.load_workbook(\"data.xlsx\"); print(wb[\"首頁\"][\"G1\"].value)"') do set vernum=%%a
+for /f %%a in ('python -c "import openpyxl;wb=openpyxl.load_workbook('data.xlsx');print(wb['首頁']['G1'].value)"') do set vernum=%%a
 echo 使用版本號: %vernum%
+
 
 :: -----------------------------
 :: [6/7] 執行 data_updw.py

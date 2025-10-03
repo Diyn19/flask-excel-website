@@ -1,25 +1,48 @@
-import sys
 import openpyxl
+from datetime import datetime
+import threading
+import argparse
 
-# 取得命令列參數：版本號
-if len(sys.argv) != 2:
-    print("請提供版本號作為參數，例如：python add_ver.py 123")
-    sys.exit(1)
+def get_version(timeout=10, auto_only=False):
+    version = None
+    user_input = {"value": None}
 
-version = sys.argv[1]
+    if not auto_only:
+        def ask_input():
+            try:
+                user_input["value"] = input(
+                    f"請輸入版本號（{timeout} 秒內輸入，否則自動填入 MMDDHHMM）：\n> "
+                ).strip()
+            except EOFError:
+                user_input["value"] = ""
 
-# 讀取 Excel 檔案
-file_path = "data.xlsx"
-wb = openpyxl.load_workbook(file_path)
+        t = threading.Thread(target=ask_input)
+        # 不設 daemon，避免 Python 結束報錯
+        t.start()
+        t.join(timeout=timeout)
 
-# 選取「首頁」工作表並寫入版本號到 G1
-if "首頁" not in wb.sheetnames:
-    print("錯誤：找不到 '首頁' 工作表")
-    sys.exit(1)
+        if user_input["value"]:
+            version = user_input["value"]
 
-sheet = wb["首頁"]
-sheet["G1"] = version
+    if not version:
+        version = datetime.now().strftime("%m%d%H%M")
+        if not auto_only:
+            print(f"\n[超時] 超過 {timeout} 秒未輸入，自動使用版本號 {version}")
 
-# 儲存 Excel 檔案
-wb.save(file_path)
-print(f"已將版本號 {version} 寫入 G1 儲存格")
+    # 寫入 Excel
+    file_path = "data.xlsx"
+    wb = openpyxl.load_workbook(file_path)
+    sheet = wb["首頁"]
+    sheet["G1"] = version
+    wb.save(file_path)
+
+    print(f"[完成] 已將版本號 {version} 寫入 G1")
+    # 輸出給 BAT
+    print(version)
+    return version
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--auto", action="store_true", help="Git-only 自動版本號")
+    args = parser.parse_args()
+    get_version(auto_only=args.auto)
