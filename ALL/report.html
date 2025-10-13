@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}報修查詢{% endblock %}
+{% block header_title %}報修查詢{% endblock %}
+
+{% block search_fields %}
+    <!-- report 特有的搜尋欄位 -->
+    <input type="text" name="store_id" placeholder="門市編號" value="{{ store_id }}">
+    <select name="repair_item">
+        <option value="">-- 選擇報修類別 --</option>
+        {% for item in repair_items %}
+            <option value="{{ item }}" {% if repair_item == item %}selected{% endif %}>{{ item }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit">搜尋</button>
+{% endblock %}
+
+{% block content %}
+    <h2>報修查詢</h2>
+    <div class="table-container-NO">
+		<table>
+			<thead>
+				{% if tables %}
+				<tr>{% for key in tables[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr>
+				{% endif %}
+			</thead>
+			<tbody>
+				{% for row in tables %}
+				<tr>{% for value in row.values() %}<td>{{ value }}</td>{% endfor %}</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+    </div>
+{% endblock %}

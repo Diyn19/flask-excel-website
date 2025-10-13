@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}出勤時間統計{% endblock %}
+{% block header_title %}出勤時間統計{% endblock %}
+
+{% block content %}
+    <div class="table">
+      <h2 class="section-title">出勤時間曲線圖</h2>
+      <div style="text-align: center;">
+        <img src="data:image/png;base64,{{ plot_url }}" alt="出勤時間曲線圖" style="width: 1000px; height: auto;"/>
+      </div>
+    </div>
+
+    <div class="table">
+      <h2 class="section-title">總計</h2>
+      {{ df_summary_html|safe }}
+    </div>
+
+    <div class="table">
+      <h2 class="section-title">萊爾富 Hi_Life</h2>
+      {{ detail_table_1|safe }}
+    </div>
+
+    <div class="table">
+      <h2 class="section-title">MFP&其他</h2>
+      {{ detail_table_2|safe }}
+    </div>
+
+    <div class="table">
+      <h2 class="section-title">合併統計</h2>
+      {{ detail_table_3|safe }}
+    </div>
+{% endblock %}

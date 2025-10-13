@@ -122,7 +122,7 @@ def personal(name):
         keyword=keyword,
         store_id='',
         repair_item='',
-        personal_page=True,
+        personal_page=name,
         report_page=False,
         no_data_found=no_data_found,
         show_top=True,
@@ -247,6 +247,12 @@ CALENDAR_SHEET = '行事曆'
 def calendar_page():
     return render_template('index.html', calendar_page=True)
 
+            # 讀取版本號
+    try:
+        version_df = pd.read_excel(xls, sheet_name='首頁', header=None, usecols="G", nrows=1)
+        version = version_df.iloc[0, 0]
+    except:
+        version = "無法讀取版本號"
 
 # 取得所有事件，供 FullCalendar 使用
 from datetime import datetime
@@ -258,6 +264,13 @@ def get_calendar_events():
         df = pd.read_excel(xls, sheet_name='行事曆')
     except FileNotFoundError:
         return jsonify([])
+    
+        # 讀取版本號
+    try:
+        version_df = pd.read_excel(xls, sheet_name='首頁', header=None, usecols="G", nrows=1)
+        version = version_df.iloc[0, 0]
+    except:
+        version = "無法讀取版本號"
 
     # 移除欄位前後空格
     df.columns = df.columns.str.strip()
@@ -278,6 +291,7 @@ def get_calendar_events():
             # 預設顏色
             color_map = {
                 "狄澤洋": "red",
+                "V": "red",
                 "湯家瑋": "green",
                 "吳宗鴻": "orange"
             }
