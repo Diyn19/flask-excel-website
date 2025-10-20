@@ -2,26 +2,11 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <title>{{ page_title or "門市資料查詢" }}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    <title>門市資料查詢</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 40px;
-            background-color: #f7f7f7;
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-
-        form, .buttons {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
+        body { font-family: Arial, sans-serif; padding: 40px; background-color: #f7f7f7; }
+        h1 { text-align: center; color: #333; }
+        form, .buttons { text-align: center; margin-bottom: 20px; }
         input[type="text"], select {
             padding: 10px;
             width: 160px;
@@ -29,31 +14,9 @@
             border: 1px solid #ccc;
             margin: 5px;
         }
-
-        /* 讓 <a class="btn"> 表現如按鈕 */
-        .btn {
-            display: inline-block;
-            padding: 10px 15px;
-            font-size: 20px;
-            margin: 5px;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            cursor: pointer;
-            border: none;
-            text-align: center;
-            background-color: #007BFF;
-        }
-
-        .btn-primary { background-color: #007BFF; }
-        .btn-teal { background-color: #20B2AA; }
-        .btn-orange { background-color: #FFA500; color: white; }
-        .btn-black { background-color: #000000; }
-        .btn-green { background-color: #28a745; color: white; }
-
         button {
             padding: 10px 15px;
-            font-size: 20px;
+			font-size: 20px;
             margin: 5px;
             background-color: #007BFF;
             color: white;
@@ -61,10 +24,9 @@
             border-radius: 5px;
             cursor: pointer;
         }
-
-        button.button-1 {
+		button.button-1 {
             padding: 10px 15px;
-            font-size: 20px;
+			font-size: 20px;
             margin: 5px;
             background-color: #20B2AA;
             color: white;
@@ -72,10 +34,9 @@
             border-radius: 5px;
             cursor: pointer;
         }
-
-        button.button-2 {
+		button.button-2 {
             padding: 10px 15px;
-            font-size: 20px;
+			font-size: 20px;
             margin: 5px;
             background-color: #FFA500;
             color: white;
@@ -83,10 +44,9 @@
             border-radius: 5px;
             cursor: pointer;
         }
-
-        button.button-3 {
+		button.button-3 {
             padding: 10px 15px;
-            font-size: 20px;
+			font-size: 20px;
             margin: 5px;
             background-color: #000000;
             color: white;
@@ -94,49 +54,38 @@
             border-radius: 5px;
             cursor: pointer;
         }
-
-        .button-row {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: flex-start;
-            gap: 10px;
-            align-items: center;
-        }
-
-        /* nav-group 用來把按鈕分群 */
-        .nav-group { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
-
-        .button a,
-        .button-1 a {
-            text-decoration: none;
-        }
-
+		.button-row {
+			display: flex;
+			flex-wrap: wrap; /* 自動換行（必要時） */
+			justify-content: flex-start; /* 或 center, space-between 等看你需求 */
+			gap: 10px; /* 按鈕之間的間距 */
+		}
+		.button a,
+		.button-1 a {
+			text-decoration: none;
+		}
         .table-container {
             overflow-y: auto;
             max-height: 600px;
             border: 1px solid #ccc;
         }
-
-        .table-container-NO {
-            overflow-y: visible;
-            max-height: none;
-            border: 1px solid #ccc;
+		.table-container-NO {
+            overflow-y: visible;  /* 🔹 取消滾軸，內容超出會直接撐開容器 */
+			max-height: none;     /* 🔹 取消高度限制 */
+			border: 1px solid #ccc;
         }
-
         table {
             width: 100%;
             border-collapse: collapse;
             background-color: white;
             table-layout: fixed;
         }
-
         th, td {
             border: 1px solid #ddd;
             padding: 12px;
             text-align: center;
             word-wrap: break-word;
         }
-
         th {
             background-color: #007BFF;
             color: white;
@@ -144,41 +93,20 @@
             top: 0;
             z-index: 2;
         }
-
-        tr:hover {
-            background-color: #f1f1f1;
-        }
-
+        tr:hover { background-color: #f1f1f1; }
         .highlight-row td {
             color: red;
             font-weight: bold;
             border-top: 2px solid black;
         }
-
-        .status-pm {
-            background-color: red;
-            color: white;
-            padding: 6px;
-            border-radius: 4px;
-            display: inline-block;
-        }
-
-        .status-replaced {
-            color: green;
-        }
-
-        .status-not-replaced {
-            color: red;
-        }
-
+        .status-pm { background-color: red; color: white; }
+        .status-replaced { color: green; }
+        .status-not-replaced { color: red; }
         .status-repair {
             color: black;
             font-weight: bold;
             background-color: #d8ecff;
-            padding: 6px;
-            border-radius: 4px;
         }
-
         #backToTop {
             position: fixed;
             bottom: 230px;
@@ -194,11 +122,9 @@
             cursor: pointer;
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
-
         #backToTop:hover {
             background-color: #0056b3;
         }
-
         .version-info {
             text-align: center;
             color: gray;
@@ -206,54 +132,26 @@
             margin-top: -25px;
             margin-bottom: 20px;
         }
+		/* 特殊欄位背景色標記 */
+		.blue-bg { background-color: lightblue; }
+		.orange-bg { background-color: orange; }
+		.green-bg { background-color: lightgreen; }
+		/* 讓 style 表格寬度一致 */
+		.dataframe { width: 100% !important; border-collapse: collapse; }
+		.dataframe th, .dataframe td {
+			border: 1px solid #ccc;
+			padding: 10px;
+			text-align: center;
+			word-break: break-word;
+		}
+		.dataframe th {
+			background-color: #007BFF;
+			color: white;
+			position: sticky;
+			top: 0;
+			z-index: 1;
+		}
 
-        /* 特殊欄位背景色標記 */
-        .blue-bg {
-            background-color: lightblue;
-        }
-
-        .orange-bg {
-            background-color: orange;
-        }
-
-        .green-bg {
-            background-color: lightgreen;
-        }
-
-        /* DataFrame 表格風格 */
-        .dataframe {
-            width: 100% !important;
-            border-collapse: collapse;
-        }
-
-        .dataframe th, .dataframe td {
-            border: 1px solid #ccc;
-            padding: 10px;
-            text-align: center;
-            word-break: break-word;
-        }
-
-        .dataframe th {
-            background-color: #007BFF;
-            color: white;
-            position: sticky;
-            top: 0;
-            z-index: 1;
-        }
-
-        /* 小容器 */
-        .content-wrap {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        @media (max-width: 800px) {
-            body { padding: 18px; }
-            input[type="text"], select { width: 100%; max-width: 320px; }
-            .content-wrap { padding: 0 8px; }
-            .button-row { gap: 8px; justify-content: center; }
-            .btn, .button-row button { font-size: 18px; padding: 8px 12px; }
-        }
     </style>
 
 </head>
@@ -301,23 +199,28 @@
 
         <!-- 導覽按鈕列（語意正確的 a.btn） -->
         <div class="button-row" role="navigation" aria-label="主要功能選單">
-            <div class="nav-group">
-                <a href="{{ url_for('personal', name='吳宗鴻') }}" class="btn btn-primary">吳宗鴻</a>
-                <a href="{{ url_for('personal', name='湯家瑋') }}" class="btn btn-primary">湯家瑋</a>
-                <a href="{{ url_for('personal', name='狄澤洋') }}" class="btn btn-primary">狄澤洋</a>
-            </div>
-
-            <div class="nav-group" style="margin-left:12px;">
-                <a href="{{ url_for('report') }}" class="btn btn-teal">報修查詢</a>
-                <a href="https://bot.toshibatec.com.tw/hl0800/showjob31.php" target="_blank" rel="noopener noreferrer" class="btn btn-teal">報修刊版</a>
-                <a href="https://imainte.toshibatec.com.tw/i_mainte_center2/login.cfm" target="_blank" rel="noopener noreferrer" class="btn btn-orange">iMainte</a>
-                <a href="http://eip.toshibatec.com.tw/Main.aspx" target="_blank" rel="noopener noreferrer" class="btn btn-orange">EIP</a>
-                <a href="{{ url_for('time_page') }}" class="btn btn-teal">出勤時間統計</a>
-                <a href="{{ url_for('calendar_page') }}" class="btn btn-orange">排程表</a>
-                <a href="{{ url_for('mfp_parts') }}" class="btn btn-teal">MFP_零件表</a>
-                <a href="{{ url_for('billing.index') }}" class="btn btn-teal">客戶TG系統</a>
-                <a href="{{ url_for('home') }}" class="btn btn-green">回首頁</a>
-            </div>
+			<div class="button">
+				<a href="/吳宗鴻"><button>吳宗鴻</button></a>
+				<a href="/湯家瑋"><button>湯家瑋</button></a>
+				<a href="/狄澤洋"><button>狄澤洋</button></a>
+			</div>
+			<div class="button-1">
+				<a href="/report"><button class="button-1">報修查詢</button></a>
+				<a href="https://bot.toshibatec.com.tw/hl0800/showjob31.php" target="_blank" rel="noopener noreferrer">
+					<button class="button-1">報修刊版</button></a>
+				<a href="https://imainte.toshibatec.com.tw/i_mainte_center2/login.cfm?CFID=258322&CFTOKEN=f58548bc0ee07d0d-A0165FB1-FFC4-BBD8-DC3EBB80DDEA857B" target="_blank" rel="noopener noreferrer">
+					<button class="button-2">iMainte</button></a>
+				<a href="http://eip.toshibatec.com.tw/Main.aspx" target="_blank" rel="noopener noreferrer">
+					<button class="button-2">EIP</button></a>
+				<a href="/time"><button class="button-1">出勤時間統計</button></a>
+				<a href="/calendar"><button class="button-2">排程表</button></a>
+				<a href="/mfp_parts"><button class="button-1">MFP_零件表</button></a>
+							<a href="https://count-7mdt.onrender.com" target="_blank" rel="noopener noreferrer">
+					<button class="button-1">客戶TG系統</button></a>
+				{% if personal_page or report_page or time_page or calendar_page or mfp_parts %}
+					<a href="/"><button class="button-3">回首頁</button></a>
+				{% endif %}
+			</div>	
         </div>
 
         <!-- ===== 子頁內容插入點 ===== -->
