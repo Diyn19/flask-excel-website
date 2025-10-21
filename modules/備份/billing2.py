@@ -257,41 +257,14 @@ def index():
             contract, contra_text = get_contract(device_id)
             customer = get_customer(device_id)
             if contract:
-                # ✅ 查詢合開群組
-                related_devices = get_related_devices(device_id)
-
-                # ✅ 合併所有設備的上次讀數 & 當前讀數
-                total_last_color = 0
-                total_last_bw = 0
-                total_curr_color = 0
-                total_curr_bw = 0
-
-                # --- 迴圈讀取群組每台機的資料 ---
-                for dev in related_devices:
-                    last_c, last_b, _ = get_last_counts(dev)
-                    total_last_color += last_c
-                    total_last_bw += last_b
-
-                    # 前端表單必須有對應欄位，例如 curr_color_T352500089
-                    total_curr_color += int(request.form.get(f"curr_color_{dev}", "0"))
-                    total_curr_bw += int(request.form.get(f"curr_bw_{dev}", "0"))
-
-                # ✅ 總增量（合開後）
-                delta_color = total_curr_color - total_last_color
-                delta_bw = total_curr_bw - total_last_bw
-
-                # ✅ 套用主機的契約條件計算總金額
-                result = calculate(contract, total_curr_color, total_curr_bw, total_last_color, total_last_bw)
-
-                # ✅ 寫入每台機的抄表（保持原行為）
-                for dev in related_devices:
-                    curr_c = int(request.form.get(f"curr_color_{dev}", "0"))
-                    curr_b = int(request.form.get(f"curr_bw_{dev}", "0"))
-                    insert_usage(dev, curr_c, curr_b)
-
+                last_color, last_bw, last_time = get_last_counts(device_id)
+                related_devices = get_related_devices(device_id)  # ⭐ 同步查詢合開群組
+                curr_color = int(request.form.get("curr_color", "0"))
+                curr_bw = int(request.form.get("curr_bw", "0"))
+                result = calculate(contract, curr_color, curr_bw, last_color, last_bw)
+                insert_usage(device_id, curr_color, curr_bw)
             else:
                 message = f"❌ 找不到設備 {device_id}"
-
 
         elif mode == "update_contract":
             device_id = keyword

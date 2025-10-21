@@ -139,34 +139,6 @@ def get_last_counts(device_id):
         return row[0] or 0, row[1] or 0, row[2] or ""
     return 0, 0, ""
 
-# --- 合開群組查詢 ---
-def get_related_devices(device_id):
-    """根據設備代號找出合開群組（主機 + 子機）"""
-    conn = sqlite3.connect(DB_FILE)
-    c = conn.cursor()
-
-    # 先確認這台設備的 master_device_id
-    c.execute("SELECT master_device_id FROM contracts WHERE device_id=?", (device_id,))
-    row = c.fetchone()
-    if not row:
-        conn.close()
-        return []
-
-    master_id = row[0]
-
-    if not master_id or master_id.strip() == "":
-        # 若該設備是主機 → 找所有子機
-        c.execute("SELECT device_id FROM contracts WHERE master_device_id=?", (device_id,))
-        subs = [r[0] for r in c.fetchall()]
-        group = [device_id] + subs
-    else:
-        # 若該設備是子機 → 找主機與所有兄弟子機
-        c.execute("SELECT device_id FROM contracts WHERE master_device_id=?", (master_id,))
-        subs = [r[0] for r in c.fetchall()]
-        group = [master_id] + subs
-
-    conn.close()
-    return group
 
 # --- 紀錄使用量 ---
 def insert_usage(device_id, color_count, bw_count):
@@ -232,7 +204,6 @@ def index():
     contra_text = ""
     last_color, last_bw, last_time = 0, 0, ""
     matches = []
-    related_devices = []  # ⭐ 新增變數：預設空列表
 
     if request.method == "POST":
         mode = request.form.get("mode")
@@ -250,48 +221,19 @@ def index():
                     message = f"❌ 找不到設備或客戶：{keyword}"
             else:
                 last_color, last_bw, last_time = get_last_counts(keyword)
-                related_devices = get_related_devices(keyword)  # ⭐ 加入合開群組查詢
 
         elif mode == "calculate":
             device_id = keyword
             contract, contra_text = get_contract(device_id)
             customer = get_customer(device_id)
             if contract:
-                # ✅ 查詢合開群組
-                related_devices = get_related_devices(device_id)
-
-                # ✅ 合併所有設備的上次讀數 & 當前讀數
-                total_last_color = 0
-                total_last_bw = 0
-                total_curr_color = 0
-                total_curr_bw = 0
-
-                # --- 迴圈讀取群組每台機的資料 ---
-                for dev in related_devices:
-                    last_c, last_b, _ = get_last_counts(dev)
-                    total_last_color += last_c
-                    total_last_bw += last_b
-
-                    # 前端表單必須有對應欄位，例如 curr_color_T352500089
-                    total_curr_color += int(request.form.get(f"curr_color_{dev}", "0"))
-                    total_curr_bw += int(request.form.get(f"curr_bw_{dev}", "0"))
-
-                # ✅ 總增量（合開後）
-                delta_color = total_curr_color - total_last_color
-                delta_bw = total_curr_bw - total_last_bw
-
-                # ✅ 套用主機的契約條件計算總金額
-                result = calculate(contract, total_curr_color, total_curr_bw, total_last_color, total_last_bw)
-
-                # ✅ 寫入每台機的抄表（保持原行為）
-                for dev in related_devices:
-                    curr_c = int(request.form.get(f"curr_color_{dev}", "0"))
-                    curr_b = int(request.form.get(f"curr_bw_{dev}", "0"))
-                    insert_usage(dev, curr_c, curr_b)
-
+                last_color, last_bw, last_time = get_last_counts(device_id)
+                curr_color = int(request.form.get("curr_color", "0"))
+                curr_bw = int(request.form.get("curr_bw", "0"))
+                result = calculate(contract, curr_color, curr_bw, last_color, last_bw)
+                insert_usage(device_id, curr_color, curr_bw)
             else:
                 message = f"❌ 找不到設備 {device_id}"
-
 
         elif mode == "update_contract":
             device_id = keyword
@@ -426,11 +368,10 @@ def index():
         customer = get_customer(q_device)
         if contract:
             last_color, last_bw, last_time = get_last_counts(q_device)
-            related_devices = get_related_devices(q_device)  # ⭐ 同步查詢群組
         else:
             message = f"❌ 找不到設備 {q_device}"
 
-    # ✅ 統一回傳畫面
+    # ✅ 移出 return，讓所有情況都會回傳畫面
     return render_template("billing_index.html",
                            billing_page=True,
                            contract=contract,
@@ -441,8 +382,7 @@ def index():
                            last_time=last_time,
                            result=result,
                            matches=matches,
-                           message=message,
-                           related_devices=related_devices)  # ⭐ 傳給前端
-
+                           message=message)
+                           
 # ✅ 讓主程式 app.py 可以 import billing_bp
 billing_bp = bp

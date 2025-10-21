@@ -156,13 +156,11 @@
 					<th>本月黑白張數</th>
 				</tr>
 				{% for dev in related_devices %}
-				  <div class="device-box">
-					<h3>{{ dev }}</h3>
-					<label>彩色張數：</label>
-					<input type="number" name="curr_color_{{ dev }}" value="0"><br>
-					<label>黑白張數：</label>
-					<input type="number" name="curr_bw_{{ dev }}" value="0"><br>
-				  </div>
+				<tr>
+					<td>{{ dev }}</td>
+					<td><input type="number" name="curr_color_{{ dev }}" required></td>
+					<td><input type="number" name="curr_bw_{{ dev }}" required></td>
+				</tr>
 				{% endfor %}
 			</table>
 		{% else %}
