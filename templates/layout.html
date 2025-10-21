@@ -215,8 +215,7 @@
 				<a href="/time"><button class="button-1">出勤時間統計</button></a>
 				<a href="/calendar"><button class="button-2">排程表</button></a>
 				<a href="/mfp_parts"><button class="button-1">MFP_零件表</button></a>
-							<a href="https://count-7mdt.onrender.com" target="_blank" rel="noopener noreferrer">
-					<button class="button-1">客戶TG系統</button></a>
+				<a href="{{ url_for('billing.index') }}" class="button-1">計費系統</a>
 				{% if personal_page or report_page or time_page or calendar_page or mfp_parts %}
 					<a href="/"><button class="button-3">回首頁</button></a>
 				{% endif %}
