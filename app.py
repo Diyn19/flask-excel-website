@@ -83,7 +83,8 @@ def home():
         seasons_table=df_seasons.to_dict(orient='records'),
         project1_table=df_project1.to_dict(orient='records'),
         HUB_table=df_HUB.to_dict(orient='records'),
-        no_data_found=no_data_found
+        no_data_found=no_data_found,
+        home_page=True
     )
 
 @app.route('/personal/<name>')
@@ -110,7 +111,8 @@ def personal(name):
         tables_top=df_top.to_dict(orient="records"),
         tables_project=df_project.to_dict(orient="records"),
         tables_bottom=df_bottom.to_dict(orient="records"),
-        version=version_time
+        version=version_time,
+        home_page=False
     )
 
 @app.route('/report')
@@ -122,21 +124,27 @@ def report():
     keyword = request.args.get('keyword', '').strip()
     store_id = request.args.get('store_id', '').strip()
     repair_item = request.args.get('repair_item', '').strip()
-    if keyword:
-        df = df[df.apply(lambda r: r.astype(str).str.contains(keyword, case=False).any(), axis=1)]
-    if store_id:
-        df = df[df['門店編號'].astype(str).str.contains(store_id, case=False)]
-    if repair_item:
-        df = df[df['報修類別'].astype(str).str.strip() == repair_item.strip()]
-    no_data_found = df.empty
+    
+    tables = []
+    
+    if keyword or store_id or repair_item:
+        if keyword:
+            df = df[df.apply(lambda r: r.astype(str).str.contains(keyword, case=False).any(), axis=1)]
+        if store_id:
+            df = df[df['門店編號'].astype(str).str.contains(store_id, case=False)]
+        if repair_item:
+            df = df[df['報修類別'].astype(str).str.strip() == repair_item.strip()]
+        tables = df.to_dict(orient='records')
+        
     return render_template(
         'report.html',
         version=version_time,
-        tables=df.to_dict(orient='records'),
+        tables=tables,
         keyword=keyword,
         store_id=store_id,
         repair_item=repair_item,
-        no_data_found=no_data_found
+        no_data_found=(len(tables) == 0 and (keyword or store_id or repair_item)),
+        home_page=False
     )
 
 @app.route('/time')
@@ -172,7 +180,8 @@ def time_page():
         detail_table_3=detail_3.to_html(index=False, classes='dataframe'),
         plot_url=plot_url,
         df_summary=df_summary,
-        time_page=True
+        time_page=True,
+        home_page=False
     )
 
 @app.route('/mfp_parts', methods=['GET', 'POST'])
@@ -201,7 +210,8 @@ def mfp_parts():
         message=message,
         table_html=table_html,
         selected_model=model,
-        selected_part=part
+        selected_part=part,
+        home_page=False
     )
 
 @app.route('/calendar')
