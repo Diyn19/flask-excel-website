@@ -30,14 +30,20 @@
         button:hover { background-color: #0056b3; }
         .search-label {
             font-size: 18px;
+			margin-left: 0;
+			margin-right:auto;
         }
         .search-input {
             font-size: 16px;
             padding: 4px 6px;
+			margin-left: 0;
+			margin-right:auto;
         }
         .search-btn {
             font-size: 16px;
             padding: 6px 12px;
+			margin-left: 0;
+			margin-right:auto;
         }
         .back-btn {
             background-color: #28a745;
@@ -98,7 +104,11 @@
 		  background-color: white;
 		  appearance: none; /* 移除瀏覽器預設樣式 */
 		}
-
+		form {
+		  text-align: left;
+		  margin-left: 0;
+		  margin-right: auto;
+		}
 
     </style>
 </head>
@@ -111,7 +121,7 @@
 	<!-- 查詢設備或客戶 -->
 	<form method="POST" style="margin-bottom: 12px;">
 		<input type="hidden" name="mode" value="query">
-		<label class="search-label">設備編號 / 客戶名稱(概略):
+		<label class="search-label;">設備編號 / 客戶名稱(概略):
 			<input type="text" name="device_id" required class="search-input">
 		</label>
 		<button type="submit" class="search-btn">查詢</button>
@@ -126,7 +136,7 @@
 	{% if matches %}
 	  <div style="margin-top: 20px;">
 		<h3>🔍 找到多筆相符的客戶，請選擇：</h3>
-		<table border="1" cellspacing="0" cellpadding="6" style="border-collapse: collapse; width: 60%;">
+		<table border="1" cellspacing="0" cellpadding="6" style="border-collapse: collapse;">
 		  <thead style="color: white;">
 			<tr>
 			  <th>設備編號</th>
@@ -168,7 +178,7 @@
 
 <!-- 客戶資料區塊 -->
 	{% if customer %}
-	<h3 style="font-size:22px;">客戶資料</h3>
+	<h3 style="font-size:22px; text-align:left;">客戶資料</h3>
 	<form method="post" action="{{ url_for('billing.index') }}">
 		<table class="contract-table" style="width:100%; font-size: 12px; font-weight: bold; max-width:600px; margin-left: 0;; border-collapse: collapse;">
 		  <colgroup>
@@ -207,7 +217,7 @@
 
 		{% if related_devices and related_devices|length > 1 %}
 		  <p style="font-size:16px;margin-left: 0;">📦 合開群組（主機：{{ related_devices[0] }}），共 {{ related_devices|length }} 台</p>
-		  <table class="contract-table" style="margin-left: 0; width:80%;">
+		  <table class="contract-table" style="margin-left: 0; ">
 			<tr>
 			  <th>設備編號</th>
 			  <th>本月彩色張數</th>
