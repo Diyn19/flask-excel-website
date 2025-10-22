@@ -164,7 +164,7 @@
 				"報修查詢" if report_page else
 				("PMQ4 個人查詢: " ~ personal_page) if personal_page else
 				"部門排程" if calendar_page else
-				"TG計費系統" if billing_page else
+				"TG客戶系統" if billing_page else
 				"PMQ4 部門總覽"
 			) }}
         </h1>
@@ -215,7 +215,7 @@
 				<a href="{{ url_for('time_page') }}"><button class="button-1">出勤時間統計</button></a>
 				<a href="{{ url_for('calendar_page') }}"><button class="button-2">排程表</button></a>
 				<a href="{{ url_for('mfp_parts') }}"><button class="button-1">MFP_零件表</button></a>
-				<a href="{{ url_for('billing.index') }}"><button class="button-1">TG計費系統</button></a>
+				<a href="{{ url_for('billing.index') }}"><button class="button-1">TG客戶系統</button></a>
 		{% endif %}
 			{% if not home_page %}
 			<a href="/"><button class="button-3">回首頁</button></a>
