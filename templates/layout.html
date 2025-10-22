@@ -198,6 +198,7 @@
         </form>
 
         <!-- 導覽按鈕列（語意正確的 a.btn） -->
+		{% if not billing_page %}
         <div class="button-row" role="navigation" aria-label="主要功能選單">
 			<div class="button">
                 <a href="{{ url_for('personal', name='吳宗鴻') }}"><button class="button">吳宗鴻</button></a>
@@ -215,6 +216,7 @@
 				<a href="{{ url_for('calendar_page') }}"><button class="button-2">排程表</button></a>
 				<a href="{{ url_for('mfp_parts') }}"><button class="button-1">MFP_零件表</button></a>
 				<a href="{{ url_for('billing.index') }}"><button class="button-1">TG計費系統</button></a>
+		{% endif %}
 			{% if not home_page %}
 			<a href="/"><button class="button-3">回首頁</button></a>
 			{% endif %}

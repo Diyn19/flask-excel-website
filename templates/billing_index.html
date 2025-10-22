@@ -53,18 +53,53 @@
 		}
 		@media (max-width: 768px) {
 		  table.contract-table {
+			font-size: 14px;
 			width: 100%;
-			font-size: 16px;
+			margin-left: 0;
+		    margin-right: auto;
 		  }
+
+		  table.contract-table input[type="number"],
 		  table.contract-table input[type="text"] {
 			width: 100%;
-			font-size: 16px;
-		  }
-		  h3 {
-			text-align: center;
-			font-size: 20px;
+			font-size: 14px;
+			margin-left: 0;
+		    margin-right: auto;
 		  }
 		}
+
+		/* 統一所有契約表格輸入框 */
+		table.contract-table input[type="number"],
+		table.contract-table input[type="text"],
+		table.contract-table select {
+		  width: 100%;
+		  font-size: 12px;
+		  box-sizing: border-box;
+		  margin-left: 0;
+		  margin-right: auto;
+		}
+
+		/* 標題樣式 */
+		h3 {
+		  text-align: center;
+		  font-size: 20px;
+		}
+		.contract-table input[type="number"],
+		.contract-table input[type="text"] {
+		  width: 100%;
+		  margin-left: 0;
+		  margin-right: auto;
+		  height: 28px;
+		  padding: 2px 4px;
+		  font-size: 12px;
+		  border: 1px solid #ccc;
+		  border-radius: 4px;
+		  box-sizing: border-box;
+		  background-color: white;
+		  appearance: none; /* 移除瀏覽器預設樣式 */
+		}
+
+
     </style>
 </head>
 <body>
@@ -135,7 +170,7 @@
 	{% if customer %}
 	<h3 style="font-size:22px;">客戶資料</h3>
 	<form method="post" action="{{ url_for('billing.index') }}">
-		<table class="contract-table" style="width:100%; max-width:600px; margin:auto; border-collapse: collapse;">
+		<table class="contract-table" style="width:100%; font-size: 12px; font-weight: bold; max-width:600px; margin-left: 0;; border-collapse: collapse;">
 		  <colgroup>
 			<col style="width: 25%;">
 			<col style="width: 75%;">
@@ -171,33 +206,31 @@
 		</div>
 
 		{% if related_devices and related_devices|length > 1 %}
-			<p style="font-size:16px;">📦 合開群組（主機：{{ related_devices[0] }}），共 {{ related_devices|length }} 台</p>
-			<table class="contract-table">
-				<tr>
-					<th>設備編號</th>
-					<th>本月彩色張數</th>
-					<th>本月黑白張數</th>
-				</tr>
-				{% for dev in related_devices %}
-				  <div class="device-box">
-					<h3>{{ dev }}</h3>
-					<label>彩色張數：</label>
-					<input type="number" name="curr_color_{{ dev }}" value="0"><br>
-					<label>黑白張數：</label>
-					<input type="number" name="curr_bw_{{ dev }}" value="0"><br>
-				  </div>
-				{% endfor %}
-			</table>
+		  <p style="font-size:16px;margin-left: 0;">📦 合開群組（主機：{{ related_devices[0] }}），共 {{ related_devices|length }} 台</p>
+		  <table class="contract-table" style="margin-left: 0; width:80%;">
+			<tr>
+			  <th>設備編號</th>
+			  <th>本月彩色張數</th>
+			  <th>本月黑白張數</th>
+			</tr>
+			{% for dev in related_devices %}
+			  <tr>
+				<td style="font-weight:bold;">{{ dev }}</td>
+				<td><input type="number" name="curr_color_{{ dev }}" value="0" style="width:100%;"></td>
+				<td><input type="number" name="curr_bw_{{ dev }}" value="0" style="width:100%;"></td>
+			  </tr>
+			{% endfor %}
+		  </table>
 		{% else %}
-			<div>
-				前次彩色張數: <input type="text" value="{{ last_color }}" readonly>
-				前次黑白張數: <input type="text" value="{{ last_bw }}" readonly>
-			</div>
-			<br>
-			<div>
-				本月彩色張數: <input type="number" name="curr_color" required>
-				本月黑白張數: <input type="number" name="curr_bw" required>
-			</div>
+		  <div>
+			前次彩色張數: <input type="text" value="{{ last_color }}" readonly>
+			前次黑白張數: <input type="text" value="{{ last_bw }}" readonly>
+		  </div>
+		  <br>
+		  <div>
+			本月彩色張數: <input type="number" name="curr_color" required>
+			本月黑白張數: <input type="number" name="curr_bw" required>
+		  </div>
 		{% endif %}
 
 		<div style="margin-top:12px;">
@@ -237,7 +270,7 @@
         <input type="hidden" name="device_id" value="{{ contract.device_id }}">
         <input type="hidden" name="mode" value="update_contract">
 
-        <table class="contract-table">
+        <table class="contract-table" style="width:100%; font-size: 12px; font-weight: bold; max-width:600px; margin-left: 0; border-collapse: collapse;">
             <tr><th>項目</th><th>數值</th></tr>
             <tr><td>月租金</td><td><input type="number" step="0.01" name="monthly_rent" value="{{ contract.monthly_rent }}"></td></tr>
             <tr><td>彩色單價</td><td><input type="number" step="0.01" name="color_unit_price" value="{{ contract.color_unit_price }}"></td></tr>
@@ -248,15 +281,18 @@
             <tr><td>黑白誤印率 (小數)</td><td><input type="number" step="0.0001" name="bw_error_rate" value="{{ contract.bw_error_rate }}"></td></tr>
             <tr><td>彩色基本張數</td><td><input type="number" name="color_basic" value="{{ contract.color_basic }}"></td></tr>
             <tr><td>黑白基本張數</td><td><input type="number" name="bw_basic" value="{{ contract.bw_basic }}"></td></tr>
-            <tr><td>前次彩色張數</td><td><input type="text" value="{{ last_color }}" readonly></td></tr>
-            <tr><td>前次黑白張數</td><td><input type="text" value="{{ last_bw }}" readonly></td></tr>
-			<tr>
-			  <td>合開設備編號（主要設備）</td>
+			<tr><td>前次彩色張數</td>
+			<td><input type="text" value="{{ last_color }}" readonly 
+					   style="width:100%; height:28px; padding:2px 4px; font-size:12px; box-sizing:border-box;"></td></tr>
+			<tr><td>前次黑白張數</td>
+			<td><input type="text" value="{{ last_bw }}" readonly
+					   style="width:100%; height:28px; padding:2px 4px; font-size:12px; box-sizing:border-box;"></td></tr>
+			<tr><td>合開設備編號（主要設備）</td>
 			  <td>
-				<input type="text" name="master_device_id" 
-					   value="{{ contract.master_device_id if contract.master_device_id else '' }}" 
-					   placeholder="若為主機留空，子機請填主機設備編號" 
-					   style="width:98%;">
+				<input type="text" name="master_device_id"
+					   value="{{ contract.master_device_id if contract.master_device_id else '' }}"
+					   placeholder="若為主機留空，子機請填主機設備編號"
+					   style="width:100%; box-sizing:border-box;">
 			  </td>
 			</tr>
 
